@@ -1,0 +1,3145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#04060C">
+<title>감정워치 · 예측형 정서 위기 모니터링 (Emotion Watch)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   EMOTION WATCH — design tokens
+   Paleta: 덱(PPTX)의 다크 임상-퓨처리스트 톤에서 추출
+   ============================================================ */
+:root{
+  --void:#04060c;
+  --deep:#070b16;
+  --panel:#0b1120;
+  --panel-2:#101a2e;
+  --panel-3:#16223a;
+  --line:rgba(122,158,214,.14);
+  --line-2:rgba(122,196,255,.26);
+  --ink:#e7eefb;
+  --ink-dim:#93a6c4;
+  --ink-faint:#5d6f8d;
+  --cyan:#38e1ff;
+  --cyan-deep:#0b8fb0;
+  --violet:#8b5cf6;
+  --magenta:#ff3d7f;
+  --amber:#ffb020;
+  --mint:#3be8b0;
+  --shadow:0 18px 44px -22px rgba(0,0,0,.95);
+  --r:14px;
+  --r-sm:9px;
+  --rail:236px;
+  --mon:344px;
+  --f-disp:"Chakra Petch","Noto Sans KR",system-ui,sans-serif;
+  --f-body:"Noto Sans KR",system-ui,-apple-system,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:
+    radial-gradient(1100px 600px at 12% -8%, rgba(56,225,255,.09), transparent 62%),
+    radial-gradient(900px 520px at 96% 4%, rgba(139,92,246,.10), transparent 60%),
+    radial-gradient(700px 700px at 50% 118%, rgba(255,61,127,.06), transparent 60%),
+    var(--void);
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:15px;line-height:1.6;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(122,158,214,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(122,158,214,.045) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(circle at 50% 30%,#000 20%,transparent 78%);
+  -webkit-mask-image:radial-gradient(circle at 50% 30%,#000 20%,transparent 78%);
+}
+h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.02em;line-height:1.28}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+a{color:var(--cyan)}
+::selection{background:rgba(56,225,255,.28)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;border-radius:4px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--f-disp);font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);margin:0;text-shadow:0 1px 10px rgba(4,6,12,.9)}
+.hint{color:var(--ink-faint);font-size:12.5px;line-height:1.55}
+.wrap-note{max-width:74ch}
+
+/* ===================== shell ===================== */
+.app{position:relative;z-index:1;max-width:1560px;margin:0 auto;padding:0 18px 110px}
+.topbar{
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  padding:16px 2px 14px;border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:40;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:linear-gradient(180deg,rgba(4,6,12,.94),rgba(4,6,12,.72));
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand-mark{
+  width:38px;height:38px;border-radius:11px;flex:0 0 auto;position:relative;
+  background:conic-gradient(from 210deg,var(--cyan),var(--violet),var(--magenta),var(--cyan));
+  box-shadow:0 0 22px -4px rgba(56,225,255,.55);
+  display:grid;place-items:center;
+}
+.brand-mark::after{content:"";position:absolute;inset:3px;border-radius:8px;background:var(--void)}
+.brand-mark span{position:relative;z-index:1;font-family:var(--f-disp);font-weight:700;font-size:15px;color:var(--cyan)}
+.brand-txt{min-width:0}
+.brand-txt b{display:block;font-family:var(--f-disp);font-weight:700;font-size:16px;letter-spacing:.1em}
+.brand-txt i{display:block;font-style:normal;font-size:11.5px;color:var(--ink-faint);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-spacer{flex:1 1 auto;min-width:8px}
+.cap-chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;
+  border:1px solid var(--line);background:rgba(16,26,46,.6);
+  font-size:11.5px;color:var(--ink-dim);white-space:nowrap;
+}
+.chip b{font-weight:500;color:var(--ink)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--ink-faint);flex:0 0 auto;box-shadow:0 0 0 0 currentColor}
+.chip.on .dot{background:var(--mint);box-shadow:0 0 10px var(--mint)}
+.chip.off .dot{background:#455168}
+.chip.live .dot{background:var(--magenta);animation:pulse 1.1s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,61,127,.6)}70%{box-shadow:0 0 0 9px rgba(255,61,127,0)}100%{box-shadow:0 0 0 0 rgba(255,61,127,0)}}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:10.5px;
+  letter-spacing:.08em;padding:5px 9px;border-radius:6px;border:1px solid var(--line-2);
+  color:var(--cyan);background:rgba(56,225,255,.06);text-transform:uppercase;
+}
+.badge.warn{color:var(--amber);border-color:rgba(255,176,32,.4);background:rgba(255,176,32,.07)}
+.badge.danger{color:var(--magenta);border-color:rgba(255,61,127,.42);background:rgba(255,61,127,.08)}
+
+/* ===================== rhythm ribbon (signature) ===================== */
+.ribbon-wrap{position:relative;margin:16px 0 18px;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:linear-gradient(180deg,rgba(11,17,32,.9),rgba(7,11,22,.65))}
+.ribbon-wrap::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(4,6,12,.9),transparent 12%,transparent 88%,rgba(4,6,12,.9))}
+#ribbon{display:block;width:100%;height:104px}
+.ribbon-head{position:absolute;left:18px;top:12px;right:18px;display:flex;gap:14px;align-items:flex-start;justify-content:space-between;pointer-events:none;flex-wrap:wrap}
+.ribbon-head h1{font-size:clamp(15px,1.5vw,19px);font-weight:900;letter-spacing:-.03em;margin-top:3px;text-shadow:0 2px 18px rgba(4,6,12,.95)}
+.ribbon-head h1 em{font-style:normal;color:var(--cyan)}
+.ribbon-stat{display:flex;gap:16px;text-align:right}
+.ribbon-stat div{min-width:74px}
+.ribbon-stat small{display:block;font-family:var(--f-disp);font-size:9.5px;letter-spacing:.16em;color:var(--ink-faint);text-transform:uppercase}
+.ribbon-stat b{font-family:var(--f-mono);font-size:19px;font-weight:600}
+.ribbon-foot{position:absolute;left:18px;bottom:9px;right:18px;display:flex;gap:12px;justify-content:space-between;font-family:var(--f-mono);font-size:10.5px;color:var(--ink-faint);pointer-events:none}
+.ribbon-foot .src{color:var(--ink-dim)}
+
+/* ===================== body grid ===================== */
+.body{display:grid;grid-template-columns:var(--rail) minmax(0,1fr) var(--mon);gap:18px;align-items:start}
+.rail{position:sticky;top:78px;display:flex;flex-direction:column;gap:4px;padding:10px;border:1px solid var(--line);border-radius:var(--r);background:rgba(11,17,32,.55)}
+.rail button{
+  display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  padding:11px 12px;border-radius:var(--r-sm);color:var(--ink-dim);font-size:14px;font-weight:500;
+  border:1px solid transparent;transition:.16s;
+}
+.rail button:hover{background:rgba(56,225,255,.06);color:var(--ink)}
+.rail button .ic{width:20px;text-align:center;font-family:var(--f-disp);font-size:13px;opacity:.85}
+.rail button .n{margin-left:auto;font-family:var(--f-mono);font-size:10.5px;color:var(--ink-faint)}
+.rail button[aria-current="true"]{background:linear-gradient(90deg,rgba(56,225,255,.14),rgba(139,92,246,.10));border-color:var(--line-2);color:#fff;box-shadow:inset 0 0 24px -12px rgba(56,225,255,.6)}
+.rail button[aria-current="true"] .ic{color:var(--cyan)}
+.rail-sep{height:1px;background:var(--line);margin:8px 4px}
+.rail .mini{padding:8px 12px}
+.rail .mini small{display:block;font-size:11px;color:var(--ink-faint)}
+.rail .mini b{font-family:var(--f-mono);font-size:13px;color:var(--ink)}
+main{min-width:0}
+.view{display:none;animation:fade .3s ease both}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ===================== monitor column ===================== */
+.monitor{position:sticky;top:78px;display:flex;flex-direction:column;gap:14px}
+@media (max-width:1240px){.monitor{position:static}}
+
+/* ===================== cards ===================== */
+.card{border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,rgba(16,26,46,.72),rgba(11,17,32,.72));padding:16px;box-shadow:var(--shadow)}
+.card + .card{margin-top:14px}
+.card-h{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.card-h h3{font-size:15.5px}
+.card-h .eyebrow{margin-bottom:3px}
+.card-h .tail{margin-left:auto;flex:0 0 auto;display:flex;gap:6px;align-items:center}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:1080px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:720px){.g2,.g3,.g4{grid-template-columns:minmax(0,1fr)}}
+.section-title{display:flex;align-items:baseline;gap:10px;margin:26px 0 12px}
+.section-title h2{font-size:19px}
+.section-title span{font-family:var(--f-mono);font-size:11px;color:var(--ink-faint)}
+
+/* metric tile */
+.tile{border:1px solid var(--line);border-radius:var(--r-sm);background:rgba(7,11,22,.6);padding:12px 13px}
+.tile small{display:block;font-family:var(--f-disp);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px}
+.tile b{font-family:var(--f-mono);font-size:22px;font-weight:600;line-height:1.1}
+.tile b i{font-style:normal;font-size:12px;color:var(--ink-dim);margin-left:3px}
+.tile .sub{font-size:11.5px;color:var(--ink-faint);margin-top:3px}
+.tile.good b{color:var(--mint)} .tile.watch b{color:var(--amber)} .tile.bad b{color:var(--magenta)}
+
+/* buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px 15px;border-radius:10px;border:1px solid var(--line-2);
+  background:rgba(56,225,255,.09);color:var(--ink);font-size:13.5px;font-weight:500;transition:.16s;
+}
+.btn:hover{background:rgba(56,225,255,.16);border-color:var(--cyan)}
+.btn:disabled{opacity:.42;cursor:not-allowed;filter:grayscale(.4)}
+.btn.primary{background:linear-gradient(120deg,var(--cyan),#7ea8ff 60%,var(--violet));color:#04060c;font-weight:700;border-color:transparent;box-shadow:0 10px 26px -14px rgba(56,225,255,.9)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{background:rgba(255,61,127,.14);border-color:rgba(255,61,127,.5);color:#ffd8e5}
+.btn.danger:hover{background:rgba(255,61,127,.24)}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--ink-dim)}
+.btn.ghost:hover{color:var(--ink);border-color:var(--line-2)}
+.btn.sm{padding:7px 11px;font-size:12.5px;border-radius:8px}
+.btn.block{width:100%}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:rgba(7,11,22,.6)}
+.seg button{padding:7px 12px;font-size:12.5px;color:var(--ink-dim)}
+.seg button[aria-pressed="true"]{background:rgba(56,225,255,.16);color:#fff;box-shadow:inset 0 -2px 0 var(--cyan)}
+.switch{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-dim);cursor:pointer}
+.switch input{appearance:none;width:36px;height:20px;border-radius:999px;background:#2a3752;position:relative;transition:.2s;cursor:pointer;flex:0 0 auto}
+.switch input::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#8ea0bd;transition:.2s}
+.switch input:checked{background:rgba(56,225,255,.4)}
+.switch input:checked::after{left:18px;background:var(--cyan)}
+
+/* progress / bars */
+.bar{height:7px;border-radius:999px;background:rgba(122,158,214,.14);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--cyan),var(--violet));transition:width .5s ease}
+.bar.mag i{background:linear-gradient(90deg,var(--amber),var(--magenta))}
+.bar.mint i{background:linear-gradient(90deg,var(--mint),var(--cyan))}
+.progress{height:4px;border-radius:999px;background:rgba(122,158,214,.14);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--cyan);width:0;transition:width .2s linear}
+
+/* measurement cards */
+.mod{border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,rgba(16,26,46,.6),rgba(7,11,22,.55));padding:15px;display:flex;flex-direction:column;gap:11px;position:relative;overflow:hidden}
+.mod::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line-2)}
+.mod.active::before{background:var(--cyan);box-shadow:0 0 18px var(--cyan)}
+.mod.done::before{background:var(--mint)}
+.mod-h{display:flex;align-items:center;gap:10px}
+.mod-h .ic{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:rgba(56,225,255,.1);border:1px solid var(--line-2);font-family:var(--f-disp);font-size:12px;color:var(--cyan);flex:0 0 auto}
+.mod-h b{font-size:14.5px;display:block}
+.mod-h small{color:var(--ink-faint);font-size:11.5px}
+.mod-h .st{margin-left:auto;font-family:var(--f-mono);font-size:10.5px;color:var(--ink-faint);text-align:right}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:8px}
+.readouts div{background:rgba(4,6,12,.5);border:1px solid var(--line);border-radius:8px;padding:7px 9px}
+.readouts small{display:block;font-size:9.5px;font-family:var(--f-disp);letter-spacing:.1em;color:var(--ink-faint);text-transform:uppercase}
+.readouts b{font-family:var(--f-mono);font-size:15px}
+.wave{width:100%;height:56px;display:block;border:1px solid var(--line);border-radius:8px;background:rgba(4,6,12,.55)}
+
+/* ring gauge */
+.ring-wrap{position:relative;display:grid;place-items:center}
+.ring-wrap canvas{display:block}
+.ring-center{position:absolute;text-align:center}
+.ring-center b{display:block;font-family:var(--f-mono);font-size:36px;font-weight:600;line-height:1}
+.ring-center small{font-family:var(--f-disp);font-size:10px;letter-spacing:.16em;color:var(--ink-faint);text-transform:uppercase}
+.ring-center em{display:block;font-style:normal;font-size:12.5px;margin-top:5px;font-weight:700}
+
+/* level meter */
+.levels{display:flex;gap:6px}
+.levels i{flex:1;height:5px;border-radius:999px;background:rgba(122,158,214,.16)}
+.levels i.on-0{background:var(--mint)} .levels i.on-1{background:var(--cyan)} .levels i.on-2{background:var(--amber)} .levels i.on-3{background:var(--magenta)}
+
+/* log / timeline */
+.log{display:flex;flex-direction:column;gap:0;max-height:280px;overflow:auto}
+.log-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
+.log-row:last-child{border-bottom:0}
+.log-row time{font-family:var(--f-mono);font-size:10.5px;color:var(--ink-faint);flex:0 0 52px;padding-top:2px}
+.log-row .txt{color:var(--ink-dim)}
+.log-row .txt b{color:var(--ink);font-weight:500}
+.log-row.lv-3 .txt b{color:var(--magenta)} .log-row.lv-2 .txt b{color:var(--amber)} .log-row.lv-1 .txt b{color:var(--cyan)} .log-row.lv-0 .txt b{color:var(--mint)}
+.log-row .tag{font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);margin-left:auto;padding-top:2px}
+
+/* table */
+table.tbl{width:100%;border-collapse:collapse;font-size:13px}
+table.tbl th{text-align:left;font-family:var(--f-disp);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.tbl td{padding:9px 10px;border-bottom:1px solid rgba(122,158,214,.08);vertical-align:top}
+table.tbl td.num{font-family:var(--f-mono)}
+table.tbl tr:last-child td{border-bottom:0}
+.tbl-scroll{overflow:auto;max-width:100%}
+
+/* checklist */
+.check{display:flex;flex-direction:column;gap:8px}
+.check label{display:flex;gap:11px;align-items:flex-start;padding:11px 12px;border:1px solid var(--line);border-radius:var(--r-sm);background:rgba(7,11,22,.5);cursor:pointer;transition:.15s}
+.check label:hover{border-color:var(--line-2)}
+.check input{appearance:none;width:19px;height:19px;border-radius:5px;border:1.5px solid var(--line-2);flex:0 0 auto;margin-top:1px;position:relative;cursor:pointer}
+.check input:checked{background:var(--cyan);border-color:var(--cyan)}
+.check input:checked::after{content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;border:2px solid #04060c;border-top:0;border-left:0;transform:rotate(42deg)}
+.check span{font-size:13px}
+.check span em{display:block;font-style:normal;font-size:11.5px;color:var(--ink-faint)}
+.check label:has(input:checked){background:rgba(56,225,255,.07);border-color:var(--line-2)}
+
+/* flow diagram */
+.flow{display:flex;flex-direction:column;gap:0;align-items:stretch}
+.node{border:1px solid var(--line-2);border-radius:11px;padding:12px 14px;background:rgba(16,26,46,.72)}
+.node.violet{border-color:rgba(139,92,246,.45);background:rgba(139,92,246,.1)}
+.node.amber{border-color:rgba(255,176,32,.45);background:rgba(255,176,32,.08)}
+.node.mag{border-color:rgba(255,61,127,.45);background:rgba(255,61,127,.08)}
+.node.mint{border-color:rgba(59,232,176,.4);background:rgba(59,232,176,.07)}
+.node b{font-size:13.5px;display:block}
+.node small{font-size:11.5px;color:var(--ink-dim)}
+.node .step{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:var(--ink-faint);text-transform:uppercase}
+.arrow{height:22px;display:grid;place-items:center;color:var(--ink-faint);font-size:14px}
+.branch{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.branch .lbl{font-family:var(--f-mono);font-size:10px;color:var(--ink-faint);text-align:center;margin-bottom:5px}
+
+/* chat */
+.chat{display:flex;flex-direction:column;gap:9px;max-height:330px;overflow:auto;padding:4px 2px}
+.msg{max-width:88%;padding:10px 13px;border-radius:13px;font-size:13.5px;line-height:1.55}
+.msg.bot{background:rgba(16,26,46,.9);border:1px solid var(--line);border-bottom-left-radius:4px;align-self:flex-start}
+.msg.me{background:rgba(56,225,255,.14);border:1px solid var(--line-2);border-bottom-right-radius:4px;align-self:flex-end}
+.msg .who{display:block;font-family:var(--f-disp);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:3px}
+.chat-in{display:flex;gap:8px;margin-top:10px}
+.chat-in input{flex:1;background:rgba(4,6,12,.6);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.chat-in input:focus{outline:none;border-color:var(--cyan)}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.quick button{padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:rgba(7,11,22,.6);font-size:12px;color:var(--ink-dim)}
+.quick button:hover{border-color:var(--cyan);color:var(--ink)}
+
+/* crisis overlay */
+.crisis{
+  position:fixed;inset:0;z-index:120;display:none;place-items:center;padding:20px;
+  background:radial-gradient(circle at 50% 40%,rgba(255,61,127,.16),rgba(4,6,12,.97) 62%);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.crisis.open{display:grid}
+.crisis-card{width:min(560px,100%);border:1px solid rgba(255,61,127,.4);border-radius:20px;background:linear-gradient(180deg,rgba(16,26,46,.98),rgba(7,11,22,.98));padding:24px;box-shadow:0 40px 90px -30px rgba(255,61,127,.5);text-align:center}
+.crisis-card h2{font-size:22px;font-weight:900}
+.crisis-card .eyebrow{color:var(--magenta)}
+.breath{position:relative;width:224px;height:224px;margin:18px auto;display:grid;place-items:center}
+.breath canvas{position:absolute;inset:0}
+.breath .bcenter{position:relative;z-index:2;text-align:center}
+.breath .bcenter b{display:block;font-family:var(--f-mono);font-size:38px;line-height:1}
+.breath .bcenter small{font-family:var(--f-disp);letter-spacing:.18em;font-size:10.5px;color:var(--ink-faint);text-transform:uppercase}
+.breath .bcenter em{display:block;font-style:normal;font-size:14px;color:var(--cyan);margin-top:6px;font-weight:700}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:110;display:none;place-items:center;padding:18px;background:rgba(4,6,12,.82);backdrop-filter:blur(6px)}
+.modal.open{display:grid}
+.modal-card{width:min(720px,100%);max-height:86vh;overflow:auto;border:1px solid var(--line-2);border-radius:18px;background:linear-gradient(180deg,rgba(16,26,46,.98),rgba(7,11,22,.98));padding:22px;box-shadow:0 40px 90px -30px #000}
+.modal-card h2{font-size:19px;margin-bottom:4px}
+.modal-x{margin-left:auto;font-family:var(--f-mono);font-size:16px;color:var(--ink-faint);padding:2px 8px;border-radius:6px}
+.modal-x:hover{color:var(--ink);background:rgba(122,158,214,.12)}
+
+/* toasts */
+.toasts{position:fixed;right:16px;bottom:16px;z-index:200;display:flex;flex-direction:column;gap:9px;max-width:min(390px,92vw)}
+.toast{border:1px solid var(--line-2);border-left:3px solid var(--cyan);border-radius:11px;background:rgba(11,17,32,.97);padding:12px 14px;font-size:13px;box-shadow:var(--shadow);animation:slide .28s ease both}
+.toast.warn{border-left-color:var(--amber)} .toast.danger{border-left-color:var(--magenta)} .toast.ok{border-left-color:var(--mint)}
+.toast b{display:block;font-size:13px;margin-bottom:2px}
+.toast small{color:var(--ink-dim);font-size:12px;line-height:1.5}
+@keyframes slide{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+
+/* legend */
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-dim)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px}
+
+/* consent / notice */
+.notice{border:1px solid rgba(255,176,32,.32);background:rgba(255,176,32,.07);border-radius:var(--r-sm);padding:12px 14px;font-size:12.5px;color:#ffe3b8}
+.notice b{color:var(--amber)}
+.legal{border:1px solid var(--line);border-radius:var(--r-sm);padding:13px 15px;background:rgba(4,6,12,.5);font-size:12.5px;color:var(--ink-dim)}
+.legal b{color:var(--ink);display:block;margin-bottom:3px;font-size:13px}
+
+/* camera preview */
+.cam{position:relative;border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden;background:#000;aspect-ratio:4/3}
+.cam video{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(1)}
+.cam video.mirror{transform:scaleX(-1)}
+.cam .roi{position:absolute;border:1.5px dashed rgba(56,225,255,.75);border-radius:10px;pointer-events:none;box-shadow:0 0 0 9999px rgba(4,6,12,.45)}
+.cam .ov{position:absolute;left:8px;bottom:8px;right:8px;display:flex;gap:8px;font-family:var(--f-mono);font-size:10.5px;color:var(--cyan)}
+.cam .tag{position:absolute;left:8px;top:8px;font-family:var(--f-mono);font-size:10px;color:#fff;background:rgba(4,6,12,.6);padding:3px 7px;border-radius:5px;border:1px solid var(--line-2)}
+.hidden{display:none !important}
+
+/* tabbar (mobile) */
+.tabbar{display:none}
+@media (max-width:980px){
+  .app{padding-bottom:96px}
+  .body{grid-template-columns:minmax(0,1fr)}
+  .rail{display:none}
+  .monitor{order:-1}
+  .tabbar{
+    display:flex;position:fixed;left:0;right:0;bottom:0;z-index:60;
+    background:linear-gradient(0deg,rgba(4,6,12,.99),rgba(4,6,12,.9));
+    border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom));
+  }
+  .tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 2px;border-radius:9px;color:var(--ink-faint);font-size:10.5px}
+  .tabbar button .ic{font-family:var(--f-disp);font-size:13px}
+  .tabbar button[aria-current="true"]{color:var(--cyan);background:rgba(56,225,255,.08)}
+  .toasts{left:12px;right:12px;bottom:80px;max-width:none}
+}
+@media (max-width:560px){
+  .app{padding-left:12px;padding-right:12px}
+  .card{padding:13px}
+  #ribbon{height:88px}
+  .ribbon-head{left:13px;top:9px;right:13px}
+  .ribbon-head h1{font-size:14px}
+  .ribbon-stat div{min-width:60px}
+  .ribbon-stat b{font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+@media print{
+  body{background:#fff;color:#000}
+  .rail,.monitor,.topbar,.tabbar,.toasts,.ribbon-wrap{display:none !important}
+  .card{border-color:#bbb;box-shadow:none;background:#fff}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══════════════ 상단 바 ══════════════ -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><span>EW</span></div>
+      <div class="brand-txt">
+        <b>EMOTION WATCH</b>
+        <i>예측형 정서 위기 모니터링 · 프로토타입</i>
+      </div>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="cap-chips" id="capChips"></div>
+    <span class="badge" id="e2eBadge">AES-256-GCM</span>
+    <button class="btn sm ghost" id="btnConsent">동의·설정</button>
+  </header>
+
+  <!-- ══════════════ 리듬 리본 (시그니처) ══════════════ -->
+  <div class="ribbon-wrap">
+    <canvas id="ribbon"></canvas>
+    <div class="ribbon-head">
+      <div>
+        <p class="eyebrow">보이지 않는 리듬을 읽다</p>
+        <h1>감정은 주관적이지만, <em>몸의 데이터는 거짓말하지 않습니다</em></h1>
+      </div>
+      <div class="ribbon-stat">
+        <div><small>감정 지수</small><b id="rbIndex">—</b></div>
+        <div><small>자율신경</small><b id="rbAuto">—</b></div>
+        <div><small>위험 등급</small><b id="rbLevel">—</b></div>
+      </div>
+    </div>
+    <div class="ribbon-foot">
+      <span class="src" id="rbSource">신호원 없음 · 대기 중</span>
+      <span id="rbClock">--:--:--</span>
+    </div>
+  </div>
+
+  <div class="body">
+    <!-- ══════════════ 좌측 내비게이션 ══════════════ -->
+    <nav class="rail" id="rail" aria-label="주요 화면">
+      <button data-view="home" aria-current="true"><span class="ic">01</span>대시보드</button>
+      <button data-view="measure"><span class="ic">02</span>측정<span class="n" id="navMeasure">0/5</span></button>
+      <button data-view="analyze"><span class="ic">03</span>융합 분석</button>
+      <button data-view="intervene"><span class="ic">04</span>위기 개입</button>
+      <button data-view="report"><span class="ic">05</span>리포트</button>
+      <button data-view="device"><span class="ic">06</span>기기·시뮬레이션</button>
+      <div class="rail-sep"></div>
+      <div class="mini"><small>오늘 측정 세션</small><b id="railSessions">0</b></div>
+      <div class="mini"><small>개인 기준선 학습</small><b id="railBaseline">0%</b></div>
+      <div class="mini"><small>마지막 측정</small><b id="railLast">—</b></div>
+    </nav>
+
+    <main>
+      <!-- ══════════════════════ 01 대시보드 ══════════════════════ -->
+      <section class="view active" id="view-home">
+        <div class="notice hidden" id="firstRun" style="margin-bottom:14px">
+          <b>시작 전 확인 ·</b> 이 앱은 카메라·마이크·모션 센서를 사용합니다. 민감정보 처리 동의를 먼저 확인해 주세요.
+          <button class="btn sm" id="firstRunBtn" style="margin-left:10px">동의·설정 열기</button>
+        </div>
+        <div class="card">
+          <div class="card-h">
+            <div>
+              <p class="eyebrow">오늘의 브리핑</p>
+              <h3 id="briefTitle">측정을 시작하면 요약이 만들어집니다</h3>
+            </div>
+            <div class="tail"><span class="badge" id="briefStamp">대기</span></div>
+          </div>
+          <p class="hint wrap-note" id="briefBody">카메라·마이크·모션 센서로 3분이면 오늘의 자율신경 상태를 읽습니다. 측정 탭에서 시작하세요.</p>
+          <div class="btn-row" style="margin-top:14px">
+            <button class="btn primary" data-go="measure">측정 시작</button>
+            <button class="btn" id="btnQuickBreath">30초 호흡 가이드</button>
+            <button class="btn ghost" id="btnDemo">데모 시나리오 재생</button>
+          </div>
+        </div>
+
+        <div class="grid g3" style="margin-top:14px">
+          <div class="tile"><small>감정 지수</small><b id="hIndex">—<i>/100</i></b><div class="sub">낮을수록 안정</div></div>
+          <div class="tile"><small>자율신경 균형</small><b id="hAuto">—<i>%</i></b><div class="sub">개인 기준선 대비</div></div>
+          <div class="tile"><small>6시간 예측 리스크</small><b id="hForecast">—<i>%</i></b><div class="sub">추세 기반 추정</div></div>
+        </div>
+
+        <div class="section-title"><h2>지금 할 수 있는 것</h2><span>NEXT BEST ACTION</span></div>
+        <div class="grid g2">
+          <div class="card" style="margin:0">
+            <div class="card-h"><div><p class="eyebrow">권고</p><h3 id="recTitle">측정 데이터 없음</h3></div></div>
+            <p class="hint" id="recBody">3분 측정 후 개인 기준선 대비 편차를 계산해 권고를 만듭니다.</p>
+            <div class="btn-row" style="margin-top:12px">
+              <button class="btn sm" id="recAction">권고 실행</button>
+              <button class="btn sm ghost" id="recSnooze">30분 뒤</button>
+            </div>
+          </div>
+          <div class="card" style="margin:0">
+            <div class="card-h"><div><p class="eyebrow">감정 일지</p><h3>지금 기분을 한 줄로</h3></div></div>
+            <div class="btn-row">
+              <button class="btn sm" id="btnVoiceDiary">음성으로 기록</button>
+              <button class="btn sm ghost" id="btnTextDiary">글로 기록</button>
+            </div>
+            <div class="log" id="diaryLog" style="margin-top:12px;max-height:190px"></div>
+          </div>
+        </div>
+
+        <div class="section-title"><h2>최근 이벤트</h2><span>EVENT STREAM</span></div>
+        <div class="card" style="margin:0"><div class="log" id="homeLog"></div></div>
+
+        <div class="section-title"><h2>이 프로토타입이 딛고 선 근거</h2><span>FROM YOUR SOURCES</span></div>
+        <div class="grid g2">
+          <div class="legal">
+            <b>예측 임상 · 5분의 골든타임</b>
+            미주신경성 실신(VVS) 고위험군 132명 대상 임상에서 자율신경계 이상 징후를 실신 <b style="display:inline">5분 전 84.6%</b> 확률로 사전 포착(중앙대광명병원 데이터) — 첨부 덱 「Predictive Emotion Watch」 슬라이드 6.
+          </div>
+          <div class="legal">
+            <b>수면 리듬 · 멜라토닌 교란</b>
+            수면 생체 리듬과 멜라토닌 분비 교란 패턴을 복합 분석해 본인도 자각하지 못한 우울증 징후를 선제적으로 찾아내는 접근 — 첨부 덱 슬라이드 7, 첨부 영상 「단순한 시계가 아니다」.
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════ 02 측정 ══════════════════════ -->
+      <section class="view" id="view-measure">
+        <div class="notice">
+          <b>브라우저 권한 안내 ·</b> 카메라·마이크·모션은 버튼을 누른 뒤에만 켜지며, 원본 영상과 음성은 <b style="display:inline">기기 밖으로 나가지 않습니다.</b> 계산은 전부 이 브라우저 안에서 끝나고, 저장되는 것은 파생 수치(심박·HRV·호흡수 등)뿐입니다.
+        </div>
+
+        <div class="section-title"><h2>멀티모달 측정</h2><span>5개 신호 · 최소 3개 권장</span></div>
+        <div class="grid g2">
+
+          <!-- 카메라 PPG -->
+          <div class="mod" id="modCam">
+            <div class="mod-h">
+              <div class="ic">PPG</div>
+              <div><b>카메라 혈류 측정</b><small>얼굴 rPPG(CHROM) 또는 손끝 PPG + 플래시</small></div>
+              <div class="st" id="camState">대기</div>
+            </div>
+            <div class="cam" id="camBox">
+              <video id="camVideo" playsinline muted autoplay></video>
+              <div class="roi" id="camRoi"></div>
+              <div class="tag" id="camTag">카메라 꺼짐</div>
+              <div class="ov"><span id="camLive">BPM —</span><span id="camQ">품질 —</span></div>
+            </div>
+            <div class="btn-row">
+              <div class="seg" id="camMode">
+                <button data-mode="face" aria-pressed="true">얼굴</button>
+                <button data-mode="finger" aria-pressed="false">손끝+플래시</button>
+              </div>
+              <button class="btn sm" id="btnCamStart">30초 측정</button>
+              <button class="btn sm ghost" id="btnCamStop" disabled>중지</button>
+            </div>
+            <div class="progress"><i id="camProg"></i></div>
+            <canvas class="wave" id="camWave"></canvas>
+            <div class="readouts">
+              <div><small>심박</small><b id="rHr">—</b></div>
+              <div><small>RMSSD</small><b id="rRmssd">—</b></div>
+              <div><small>SDNN</small><b id="rSdnn">—</b></div>
+              <div><small>스트레스지수</small><b id="rSi">—</b></div>
+              <div><small>호흡성 부정맥</small><b id="rRsa">—</b></div>
+            </div>
+            <p class="hint" id="camHint">얼굴 모드는 밝은 곳에서 정면을, 손끝 모드는 후면 카메라에 검지를 가볍게 대세요. 30초 동안 움직이지 않는 것이 가장 중요합니다.</p>
+          </div>
+
+          <!-- 음성·호흡 -->
+          <div class="mod" id="modMic">
+            <div class="mod-h">
+              <div class="ic">MIC</div>
+              <div><b>음성·호흡 분석</b><small>호흡수·호흡 규칙성·음성 긴장도(VTI)</small></div>
+              <div class="st" id="micState">대기</div>
+            </div>
+            <div class="btn-row">
+              <button class="btn sm" id="btnMicStart">20초 측정</button>
+              <button class="btn sm ghost" id="btnMicStop" disabled>중지</button>
+              <button class="btn sm ghost" id="btnSpeakNow">지금 한 마디</button>
+            </div>
+            <div class="progress"><i id="micProg"></i></div>
+            <canvas class="wave" id="micWave"></canvas>
+            <div class="readouts">
+              <div><small>호흡수</small><b id="rBr">—</b></div>
+              <div><small>규칙성</small><b id="rBrCv">—</b></div>
+              <div><small>음성 긴장</small><b id="rVti">—</b></div>
+              <div><small>기본 주파수</small><b id="rF0">—</b></div>
+              <div><small>품질</small><b id="rMicQ">—</b></div>
+            </div>
+            <p class="hint" id="micHint">조용한 곳에서 평소처럼 숨을 쉬며 숫자를 하나씩 세어 보세요. 말소리가 섞이면 음성 긴장도가 함께 계산됩니다.</p>
+          </div>
+
+          <!-- 모션 -->
+          <div class="mod" id="modMotion">
+            <div class="mod-h">
+              <div class="ic">IMU</div>
+              <div><b>움직임·초조 측정</b><small>가속도·자이로 기반 활동량과 안정도</small></div>
+              <div class="st" id="motionState">대기</div>
+            </div>
+            <div class="btn-row">
+              <button class="btn sm" id="btnMotionStart">10초 측정</button>
+              <button class="btn sm ghost" id="btnMotionStop" disabled>중지</button>
+            </div>
+            <div class="progress"><i id="motionProg"></i></div>
+            <canvas class="wave" id="motionWave"></canvas>
+            <div class="readouts">
+              <div><small>활동량</small><b id="rAct">—</b></div>
+              <div><small>초조 지수</small><b id="rAgit">—</b></div>
+              <div><small>안정 비율</small><b id="rStill">—</b></div>
+              <div><small>샘플</small><b id="rImuN">—</b></div>
+            </div>
+            <p class="hint">스마트폰을 주머니나 손에 든 채 평소처럼 앉아 있으면, 미세한 떨림과 뒤척임을 초조 지수로 환산합니다.</p>
+          </div>
+
+          <!-- BLE -->
+          <div class="mod" id="modBle">
+            <div class="mod-h">
+              <div class="ic">BLE</div>
+              <div><b>웨어러블 직접 연결</b><small>실제 스마트워치·가슴밴드의 HR/RR 수신</small></div>
+              <div class="st" id="bleState">미연결</div>
+            </div>
+            <div class="btn-row">
+              <button class="btn sm" id="btnBle">기기 검색·연결</button>
+              <button class="btn sm ghost" id="btnBleOff" disabled>연결 해제</button>
+            </div>
+            <div class="readouts">
+              <div><small>심박</small><b id="rBleHr">—</b></div>
+              <div><small>RR 표본</small><b id="rBleRr">0</b></div>
+              <div><small>RMSSD</small><b id="rBleRmssd">—</b></div>
+              <div><small>배터리</small><b id="rBleBat">—</b></div>
+            </div>
+            <p class="hint" id="bleHint">Bluetooth LE의 표준 Heart Rate 서비스(0x180D)를 지원하는 기기라면 연결됩니다. 워치에서 “심박수 브로드캐스트”를 켜야 보일 수 있습니다. 이 경로가 RR 간격을 직접 주므로 HRV 정확도가 가장 높습니다.</p>
+          </div>
+
+          <!-- 자가 체크 -->
+          <div class="mod" id="modSelf">
+            <div class="mod-h">
+              <div class="ic">SLF</div>
+              <div><b>주관적 감정 체크</b><small>5개 축 자가 보고 (객관 지표와 대조)</small></div>
+              <div class="st" id="selfState">미입력</div>
+            </div>
+            <div id="selfSliders"></div>
+            <p class="hint">감정은 주관적입니다. 자가 보고와 생체 신호가 <b style="display:inline">어긋나는 지점</b>이 이 앱이 가장 주목하는 신호입니다.</p>
+          </div>
+
+          <!-- 융합 -->
+          <div class="mod" id="modFuse">
+            <div class="mod-h">
+              <div class="ic">AI</div>
+              <div><b>다중 모달 융합</b><small>개인 기준선 대비 편차 → 위험 등급</small></div>
+              <div class="st" id="fuseState">대기</div>
+            </div>
+            <p class="hint">수집된 신호를 개인 기준선과 비교해 0~100 위험 지수로 융합합니다. 신호가 3개 미만이면 신뢰도를 낮게 표시합니다.</p>
+            <button class="btn primary block" id="btnFuse">융합 분석 실행</button>
+            <div class="readouts">
+              <div><small>위험 지수</small><b id="rFuseRisk">—</b></div>
+              <div><small>신뢰도</small><b id="rFuseConf">—</b></div>
+              <div><small>등급</small><b id="rFuseLevel">—</b></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════ 03 융합 분석 ══════════════════════ -->
+      <section class="view" id="view-analyze">
+        <div class="grid g2">
+          <div class="card" style="margin:0">
+            <div class="card-h"><div><p class="eyebrow">기여도 분해</p><h3>위험 지수를 만든 신호들</h3></div></div>
+            <canvas id="contrib" style="width:100%;height:210px;display:block"></canvas>
+            <div class="legend" id="contribLegend" style="margin-top:10px"></div>
+          </div>
+          <div class="card" style="margin:0">
+            <div class="card-h"><div><p class="eyebrow">개인 기준선</p><h3>맞춤형 자율신경 베이스라인</h3></div><div class="tail"><span class="badge" id="baselineBadge">학습 0%</span></div></div>
+            <div class="tbl-scroll"><table class="tbl" id="baselineTbl"></table></div>
+            <p class="hint" style="margin-top:10px">같은 심박수라도 사람마다 정상 범위가 다릅니다. 세션이 쌓일수록 개인 평균·표준편차가 갱신되고, 위험 판정은 절대값이 아니라 <b style="display:inline">본인 기준선에서의 z 편차</b>로 계산됩니다.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><div><p class="eyebrow">추세와 예측</p><h3>위험 지수 시계열 · 6시간 전망</h3></div><div class="tail"><span class="badge" id="trendBadge">표본 부족</span></div></div>
+          <canvas id="trend" style="width:100%;height:230px;display:block"></canvas>
+          <div class="legend" style="margin-top:10px">
+            <span><i style="background:var(--cyan)"></i>측정 위험 지수</span>
+            <span><i style="background:var(--magenta)"></i>선형 추세 외삽</span>
+            <span><i style="background:rgba(255,176,32,.6)"></i>경계 임계값 55</span>
+          </div>
+          <p class="hint" style="margin-top:10px">전망은 최근 세션의 선형 추세를 6시간까지 연장한 <b style="display:inline">프로토타입 휴리스틱</b>입니다. 진단이 아니며, 세션이 4개 미만이면 계산하지 않습니다.</p>
+        </div>
+
+        <div class="grid g2">
+          <div class="card" style="margin:0">
+            <div class="card-h"><div><p class="eyebrow">서카디안</p><h3>수면·멜라토닌 리듬 붕괴 감시</h3></div></div>
+            <canvas id="circadian" style="width:100%;height:250px;display:block"></canvas>
+            <div class="btn-row" style="margin-top:12px">
+              <button class="btn sm" id="btnSleep">수면 기록 입력</button>
+              <span class="chip" id="sleepChip"><span class="dot off"></span>기록 없음</span>
+            </div>
+            <p class="hint" style="margin-top:10px">취침·기상 시각의 중간점 변동이 커질수록 리듬 붕괴 위험이 올라갑니다. 임상에서는 멜라토닌 분비 패턴을 직접 보지만, 이 프로토타입은 자가 기록한 수면 창(sleep window)으로 근사합니다.</p>
+          </div>
+          <div class="card" style="margin:0">
+            <div class="card-h"><div><p class="eyebrow">자가 체크 · 진단 아님</p><h3>우울증 대표 증상 6축</h3></div><div class="tail"><span class="badge warn" id="depBadge">0 / 6</span></div></div>
+            <div class="check" id="depList"></div>
+            <p class="hint" style="margin-top:10px">이 체크리스트는 <b style="display:inline">선별(screening) 보조</b>이며 의학적 진단이 아닙니다. 3개 이상 해당되면 전문가 상담을 권고하는 수준으로만 사용합니다.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><div><p class="eyebrow">멀티모달 근거</p><h3>왜 단일 지표로는 안 되는가</h3></div></div>
+          <div class="grid g3">
+            <div class="legal"><b>PPG · HRV</b>자율신경계의 실시간 균형. 심박수만 보면 운동·카페인·발열을 스트레스로 오진하므로 RR 간격의 변이까지 봐야 합니다.</div>
+            <div class="legal"><b>GSR · 피부온도</b>교감신경 각성의 말초 표현. 이 프로토타입은 웨어러블 없이 카메라·음성·모션으로 근사하고, GSR은 BLE 연동 시 확장 지점으로 둡니다.</div>
+            <div class="legal"><b>수면 · 서카디안</b>자각하기 어려운 우울증 징후의 조기 신호. 본인이 병원을 찾기 전에 데이터만으로 수동 모니터링(passive monitoring)이 가능합니다.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════ 04 위기 개입 ══════════════════════ -->
+      <section class="view" id="view-intervene">
+        <div class="card">
+          <div class="card-h"><div><p class="eyebrow">2단계 프로토콜</p><h3>손목에서 병원까지, 중단 없는 보호</h3></div><div class="tail"><span class="badge" id="protoBadge">대기</span></div></div>
+          <div class="flow">
+            <div class="node violet"><b>감지 · 자율신경 균형 파괴 / 임계점 초과</b><small>위험 지수 55 이상 또는 HRV가 개인 기준선 −2σ 이하로 하락</small></div>
+            <div class="arrow">▼</div>
+            <div class="node mint"><span class="step">Step 1 · 기기 내 개입</span><b>화면 팝업 + 음성 AI 심호흡 가이드</b><small>4-7-8 호흡 페이서, 마이크로 실제 호흡 동기 확인, 진동 알림</small></div>
+            <div class="arrow">▼</div>
+            <div class="node"><span class="step">판정</span><b>상태 호전?</b><small>60초 후 자동 재측정으로 판정</small></div>
+            <div class="arrow">▼</div>
+            <div class="branch">
+              <div><div class="lbl">호전</div><div class="node mint"><b>정상 베이스라인 복귀</b><small>세션을 기록하고 관찰 주기를 유지</small></div></div>
+              <div><div class="lbl">무응답 · 지속</div><div class="node amber"><span class="step">Step 2 · 에스컬레이션</span><b>암호화 데이터 자동 전송 → 관제센터 연계</b><small>문진 챗봇 → 담당 의료진 알림 → 긴급 통화 연결, 보호자 동시 통보</small></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid g2">
+          <div class="card" style="margin:0">
+            <div class="card-h"><div><p class="eyebrow">Step 1</p><h3>호흡 가이드 실행</h3></div></div>
+            <div class="btn-row">
+              <button class="btn primary" id="btnBreath">가이드 시작</button>
+              <label class="switch"><input type="checkbox" id="swVoice" checked>음성 안내</label>
+              <label class="switch"><input type="checkbox" id="swMicSync" checked>마이크 호흡 동기</label>
+            </div>
+            <div class="readouts" style="margin-top:12px">
+              <div><small>진행</small><b id="brCycle">0/4</b></div>
+              <div><small>호흡 감지</small><b id="brDetect">—</b></div>
+              <div><small>동기 준수율</small><b id="brSync">—</b></div>
+              <div><small>가이드 후 위험</small><b id="brAfter">—</b></div>
+            </div>
+            <p class="hint" style="margin-top:10px">마이크를 켜 두면 들숨·날숨의 소리 크기 변화를 감지해 “지금 들이마시는 중”인지 스스로 확인합니다. 가이드가 끝나면 자동으로 재측정을 제안합니다.</p>
+          </div>
+          <div class="card" style="margin:0">
+            <div class="card-h"><div><p class="eyebrow">Step 2</p><h3>관제센터 연계 실행</h3></div></div>
+            <div class="btn-row">
+              <button class="btn danger" id="btnEscalate">에스컬레이션 실행</button>
+              <button class="btn sm ghost" id="btnClinician">의료진 화면 미리보기</button>
+            </div>
+            <div class="log" id="escLog" style="margin-top:12px"></div>
+            <p class="hint" style="margin-top:10px">실제 배포에서는 병원 HIS/EMR 연동과 식약처 SaMD 인허가가 선행되어야 합니다. 여기서는 전송 파이프라인을 <b style="display:inline">진짜 AES-256-GCM 암호화</b>로 시연합니다.</p>
+          </div>
+        </div>
+
+        <div class="grid g2">
+          <div class="card" style="margin:0">
+            <div class="card-h"><div><p class="eyebrow">문진</p><h3>정신건강 전담 챗봇</h3></div><div class="tail"><span class="badge" id="triageBadge">대기</span></div></div>
+            <div class="chat" id="chat"></div>
+            <div class="quick" id="chatQuick"></div>
+            <div class="chat-in">
+              <input id="chatInput" placeholder="답변을 입력하세요" autocomplete="off">
+              <button class="btn sm" id="chatSend">전송</button>
+            </div>
+          </div>
+          <div class="card" style="margin:0">
+            <div class="card-h"><div><p class="eyebrow">긴급 연락</p><h3>사람에게 바로 닿기</h3></div></div>
+            <div class="grid" style="gap:10px">
+              <a class="btn block" href="tel:109" style="text-decoration:none">자살예방상담전화 109 · 24시간</a>
+              <a class="btn block ghost" href="tel:15770199" style="text-decoration:none">정신건강상담전화 1577-0199</a>
+              <a class="btn block ghost" href="tel:119" style="text-decoration:none">응급 119 (의식 이상·자해 위험)</a>
+              <button class="btn block" id="btnShareGuardian">보호자·담당의에게 요약 공유</button>
+            </div>
+            <p class="hint" style="margin-top:12px">109는 2024년 1월부터 기존 1393 등 8개 상담전화가 통합된 보건복지부·한국생명존중희망재단의 24시간 자살예방상담전화입니다. <a href="https://www.129.go.kr/109" target="_blank" rel="noopener">보건복지상담센터 안내</a></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════ 05 리포트 ══════════════════════ -->
+      <section class="view" id="view-report">
+        <div class="card">
+          <div class="card-h">
+            <div><p class="eyebrow">리포트</p><h3 id="reportTitle">기록된 세션이 없습니다</h3></div>
+            <div class="tail">
+              <div class="seg" id="reportRange">
+                <button data-days="7" aria-pressed="true">7일</button>
+                <button data-days="30" aria-pressed="false">30일</button>
+                <button data-days="0" aria-pressed="false">전체</button>
+              </div>
+            </div>
+          </div>
+          <div class="grid g4" id="reportTiles"></div>
+          <div class="btn-row" style="margin-top:14px">
+            <button class="btn sm" id="btnExportJson">JSON 내보내기</button>
+            <button class="btn sm" id="btnExportCsv">CSV 내보내기</button>
+            <button class="btn sm ghost" id="btnPrint">인쇄 / PDF</button>
+            <button class="btn sm ghost" id="btnShareReport">공유</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><div><p class="eyebrow">세션 로그</p><h3>측정 단위 원본</h3></div><div class="tail"><span class="badge" id="sessBadge">0건</span></div></div>
+          <div class="tbl-scroll"><table class="tbl" id="sessTbl"></table></div>
+        </div>
+
+        <div class="grid g3">
+          <div class="legal"><b>규제 · SaMD</b>정서·정신건강 모니터링 소프트웨어는 디지털의료제품법상 의료기기 소프트웨어에 해당할 수 있어 식약처 인허가 트랙이 필요합니다. 이 페이지는 인허가 이전 단계의 <b style="display:inline">비진단 프로토타입</b>입니다.</div>
+          <div class="legal"><b>보안 · Privacy</b>민감정보는 저장 전 AES-256-GCM으로 봉인하고, 전송 구간은 종단간 암호화를 전제로 설계했습니다. 보호자·의료기관 공유는 <b style="display:inline">건별 동의</b>로만 이루어집니다.</div>
+          <div class="legal"><b>윤리 · Individualization</b>동일 기준의 획일적 적용을 배제하고, 개인의 생리적 차이를 반영해 알고리즘을 지속 보정합니다. 모든 판정에는 신뢰도가 함께 표시됩니다.</div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════ 06 기기·시뮬레이션 ══════════════════════ -->
+      <section class="view" id="view-device">
+        <div class="card">
+          <div class="card-h"><div><p class="eyebrow">기기 진단</p><h3>이 브라우저가 쓸 수 있는 센서</h3></div><div class="tail"><button class="btn sm ghost" id="btnProbe">다시 검사</button></div></div>
+          <div class="tbl-scroll"><table class="tbl" id="capsTbl"></table></div>
+          <p class="hint" style="margin-top:10px">카메라·마이크·모션·알림은 HTTPS 환경과 사용자 제스처가 필요합니다. iOS Safari는 모션 접근에 <b style="display:inline">명시적 허용</b>을 요구하므로 아래 버튼으로 따로 요청합니다.</p>
+          <div class="btn-row" style="margin-top:12px">
+            <button class="btn sm" id="btnPermAll">권한 일괄 요청</button>
+            <button class="btn sm ghost" id="btnWake">화면 켜 두기</button>
+            <button class="btn sm ghost" id="btnNotify">알림 권한</button>
+            <button class="btn sm ghost" id="btnVibe">진동 테스트</button>
+            <button class="btn sm ghost" id="btnGeo">위치 기록</button>
+          </div>
+        </div>
+
+        <div class="grid g2">
+          <div class="card" style="margin:0">
+            <div class="card-h"><div><p class="eyebrow">데모</p><h3>시나리오 시뮬레이션</h3></div></div>
+            <p class="hint">실기기 없이도 전체 파이프라인을 확인할 수 있도록, “안정 → 스트레스 축적 → 자율신경 붕괴” 90초 시나리오를 생성합니다. 리듬 리본이 실제로 거칠어지고, 임계값을 넘으면 개입 화면이 열립니다.</p>
+            <div class="btn-row" style="margin-top:12px">
+              <button class="btn primary" id="btnSimStart">시나리오 재생</button>
+              <button class="btn sm ghost" id="btnSimStop" disabled>중지</button>
+              <button class="btn sm ghost" id="btnSimData">과거 7일 데이터 생성</button>
+            </div>
+            <div class="readouts" style="margin-top:12px">
+              <div><small>시나리오 진행</small><b id="simProg">0%</b></div>
+              <div><small>주입 위험</small><b id="simRisk">—</b></div>
+            </div>
+          </div>
+          <div class="card" style="margin:0">
+            <div class="card-h"><div><p class="eyebrow">데이터 관리</p><h3>저장 위치와 삭제</h3></div></div>
+            <p class="hint">모든 기록은 이 브라우저의 로컬 저장소에만 있습니다. 서버로 전송되는 것은 에스컬레이션을 직접 실행했을 때의 암호문뿐입니다.</p>
+            <div class="readouts" style="margin-top:12px">
+              <div><small>세션</small><b id="devSess">0</b></div>
+              <div><small>일지</small><b id="devDiary">0</b></div>
+              <div><small>사용 용량</small><b id="devSize">0KB</b></div>
+            </div>
+            <div class="btn-row" style="margin-top:12px">
+              <button class="btn sm danger" id="btnWipe">전체 삭제</button>
+              <button class="btn sm ghost" id="btnSeed">샘플 기준선 만들기</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><div><p class="eyebrow">한계</p><h3>이 프로토타입이 하지 않는 것</h3></div></div>
+          <div class="grid g2">
+            <div class="legal"><b>진단하지 않습니다</b>우울증·불안장애·실신을 진단하거나 치료하지 않습니다. 위험 <b style="display:inline">징후</b>를 찾아 사람에게 연결하는 것까지만 합니다.</div>
+            <div class="legal"><b>의료기기가 아닙니다</b>식약처 허가를 받은 제품이 아니며, 병원 연계는 실제 연동이 아닌 파이프라인 시연입니다. 급박한 위험에서는 109·119를 먼저 이용하세요.</div>
+            <div class="legal"><b>센서 정확도의 한계</b>스마트폰 카메라·마이크 기반 추정은 웨어러블 PPG보다 잡음에 취약합니다. 그래서 모든 값에 품질 지표를 붙이고, 품질이 낮으면 판정하지 않습니다.</div>
+            <div class="legal"><b>임계값은 휴리스틱</b>위험 등급 경계(35·55·75)와 가중치는 공개된 HRV 연구 방향을 참고한 프로토타입 값이며, 임상 검증을 거치지 않았습니다. 배포 전 자체 임상 데이터로 재보정해야 합니다.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ══════════════ 우측 모니터 ══════════════ -->
+    <aside class="monitor" aria-label="실시간 모니터">
+      <div class="card" style="margin:0">
+        <div class="card-h"><div><p class="eyebrow">실시간 위험</p><h3 id="monLevelTxt">측정 대기</h3></div></div>
+        <div class="ring-wrap">
+          <canvas id="ring" width="200" height="200"></canvas>
+          <div class="ring-center">
+            <b id="monRisk">—</b>
+            <small>위험 지수</small>
+            <em id="monLevel" style="color:var(--ink-dim)">—</em>
+          </div>
+        </div>
+        <div class="levels" id="monLevels" style="margin-top:12px">
+          <i></i><i></i><i></i><i></i>
+        </div>
+        <p class="hint" style="margin-top:10px" id="monNote">카메라·마이크·모션 중 최소 3개 신호가 있으면 판정 신뢰도가 올라갑니다.</p>
+      </div>
+
+      <div class="card" style="margin:0">
+        <div class="card-h"><div><p class="eyebrow">활력</p><h3>최근 측정값</h3></div></div>
+        <div class="grid g2" style="gap:9px">
+          <div class="tile" style="padding:10px"><small>심박</small><b id="mVHr">—<i>bpm</i></b></div>
+          <div class="tile" style="padding:10px"><small>RMSSD</small><b id="mVRmssd">—<i>ms</i></b></div>
+          <div class="tile" style="padding:10px"><small>호흡</small><b id="mVBr">—<i>/분</i></b></div>
+          <div class="tile" style="padding:10px"><small>음성긴장</small><b id="mVVti">—</b></div>
+        </div>
+        <div class="hint" style="margin-top:10px">마지막 세션 <span class="mono" id="mVWhen">—</span></div>
+      </div>
+
+      <div class="card" style="margin:0">
+        <div class="card-h"><div><p class="eyebrow">기준선</p><h3>개인화 진행</h3></div></div>
+        <div class="bar"><i id="monBaseBar" style="width:0%"></i></div>
+        <div class="hint" style="margin-top:8px" id="monBaseTxt">세션 0개 · 인구 기준 초기값 사용 중</div>
+      </div>
+
+      <div class="card" style="margin:0">
+        <div class="card-h"><div><p class="eyebrow">이벤트</p><h3>감지 로그</h3></div></div>
+        <div class="log" id="monLog" style="max-height:230px"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- ══════════════ 모바일 탭바 ══════════════ -->
+<nav class="tabbar" id="tabbar" aria-label="화면 이동">
+  <button data-view="home" aria-current="true"><span class="ic">01</span>홈</button>
+  <button data-view="measure"><span class="ic">02</span>측정</button>
+  <button data-view="analyze"><span class="ic">03</span>분석</button>
+  <button data-view="intervene"><span class="ic">04</span>개입</button>
+  <button data-view="report"><span class="ic">05</span>리포트</button>
+  <button data-view="device"><span class="ic">06</span>기기</button>
+</nav>
+
+<!-- ══════════════ 위기 개입 오버레이 ══════════════ -->
+<div class="crisis" id="crisis" role="dialog" aria-modal="true" aria-labelledby="crisisTitle">
+  <div class="crisis-card">
+    <p class="eyebrow">Step 1 · 기기 내 개입</p>
+    <h2 id="crisisTitle">자율신경 균형이 흔들립니다</h2>
+    <p class="hint" id="crisisSub" style="margin-top:6px">4초 들이마시고 · 7초 멈추고 · 8초 내쉬세요. 화면의 원을 따라가면 됩니다.</p>
+    <div class="breath">
+      <canvas id="breathCanvas" width="448" height="448"></canvas>
+      <div class="bcenter">
+        <b id="breathCount">4</b>
+        <small id="breathPhase">들이마시기</small>
+        <em id="breathCycle">1 / 4</em>
+      </div>
+    </div>
+    <div class="readouts" style="justify-content:center">
+      <div><small>마이크 감지</small><b id="crisisDetect">—</b></div>
+      <div><small>동기 준수율</small><b id="crisisSync">—</b></div>
+    </div>
+    <div class="btn-row" style="justify-content:center;margin-top:16px">
+      <button class="btn primary" id="crisisOk">괜찮아졌어요</button>
+      <button class="btn danger" id="crisisEsc">도움이 필요해요 · 관제센터 연결</button>
+      <button class="btn ghost sm" id="crisisClose">닫기</button>
+    </div>
+    <p class="hint" style="margin-top:12px">긴급한 위험이 있다면 <a href="tel:109">109</a> · <a href="tel:119">119</a>로 바로 전화하세요.</p>
+  </div>
+</div>
+
+<!-- ══════════════ 범용 모달 ══════════════ -->
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="card-h">
+      <div><p class="eyebrow" id="modalEyebrow">정보</p><h2 id="modalTitle">제목</h2></div>
+      <button class="modal-x" id="modalX" aria-label="닫기">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<video id="camVideoHidden" class="hidden" playsinline muted></video>
+<script>
+'use strict';
+/* =====================================================================
+   EMOTION WATCH — 예측형 정서 위기 모니터링 (브라우저 단독 실행 프로토타입)
+   모든 신호 처리는 이 파일 안에서 수행됩니다. 외부 라이브러리 없음.
+   ===================================================================== */
+
+/* ---------- 0. 공용 유틸 ---------- */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const mean = a => (a && a.length) ? a.reduce((x, y) => x + y, 0) / a.length : 0;
+const std = a => {
+  if (!a || a.length < 2) return 0;
+  const m = mean(a);
+  return Math.sqrt(a.reduce((s, v) => s + (v - m) * (v - m), 0) / (a.length - 1));
+};
+const median = a => { if (!a.length) return 0; const b = a.slice().sort((x, y) => x - y); const m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; };
+const num = (v, d = 0) => (v == null || !isFinite(v)) ? '—' : Number(v).toFixed(d);
+const pad2 = n => String(n).padStart(2, '0');
+const clockT = (d = new Date()) => pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
+const dayKey = (d = new Date()) => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+const relTime = ts => {
+  const s = (Date.now() - ts) / 1000;
+  if (s < 60) return '방금';
+  if (s < 3600) return Math.round(s / 60) + '분 전';
+  if (s < 86400) return Math.round(s / 3600) + '시간 전';
+  return Math.round(s / 86400) + '일 전';
+};
+const hex = u8 => Array.from(u8).map(b => b.toString(16).padStart(2, '0')).join('');
+
+/* ---------- 1. 신호 처리 ---------- */
+const Sig = {
+  detrend(x) {
+    const n = x.length; if (n < 2) return x.slice();
+    let sx = 0, sy = 0, sxx = 0, sxy = 0;
+    for (let i = 0; i < n; i++) { sx += i; sy += x[i]; sxx += i * i; sxy += i * x[i]; }
+    const d = n * sxx - sx * sx;
+    const b = d ? (n * sxy - sx * sy) / d : 0, a = (sy - b * sx) / n;
+    return x.map((v, i) => v - (a + b * i));
+  },
+  movingAvg(x, w) {
+    const out = new Array(x.length); let acc = 0; const q = [];
+    for (let i = 0; i < x.length; i++) { q.push(x[i]); acc += x[i]; if (q.length > w) acc -= q.shift(); out[i] = acc / q.length; }
+    return out;
+  },
+  /** RBJ 바이쿼드 + 정/역방향 2회 적용 → 위상 왜곡 제거 */
+  biquad(x, fs, f0, Q, type = 'bandpass') {
+    if (!x.length || !fs) return x.slice();
+    const w0 = 2 * Math.PI * f0 / fs, cw = Math.cos(w0), sw = Math.sin(w0), al = sw / (2 * Q);
+    let b0, b1, b2, a0, a1, a2;
+    if (type === 'lowpass') { b0 = (1 - cw) / 2; b1 = 1 - cw; b2 = (1 - cw) / 2; }
+    else if (type === 'highpass') { b0 = (1 + cw) / 2; b1 = -(1 + cw); b2 = (1 + cw) / 2; }
+    else { b0 = al; b1 = 0; b2 = -al; }
+    a0 = 1 + al; a1 = -2 * cw; a2 = 1 - al;
+    b0 /= a0; b1 /= a0; b2 /= a0; a1 /= a0; a2 /= a0;
+    const run = inp => {
+      const y = new Array(inp.length); let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+      for (let i = 0; i < inp.length; i++) {
+        const x0 = inp[i];
+        const o = b0 * x0 + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
+        x2 = x1; x1 = x0; y2 = y1; y1 = o; y[i] = o;
+      }
+      return y;
+    };
+    return run(run(x).slice().reverse()).reverse();
+  },
+  /** in-place radix-2 FFT (Float64Array) */
+  fft(re, im) {
+    const n = re.length;
+    for (let i = 1, j = 0; i < n; i++) {
+      let bit = n >> 1;
+      for (; j & bit; bit >>= 1) j ^= bit;
+      j ^= bit;
+      if (i < j) { const tr = re[i]; re[i] = re[j]; re[j] = tr; const ti = im[i]; im[i] = im[j]; im[j] = ti; }
+    }
+    for (let len = 2; len <= n; len <<= 1) {
+      const ang = -2 * Math.PI / len, half = len >> 1;
+      for (let i = 0; i < n; i += len) {
+        for (let k = 0; k < half; k++) {
+          const a = ang * k, wr = Math.cos(a), wi = Math.sin(a);
+          const i1 = i + k, i2 = i1 + half;
+          const vr = re[i2] * wr - im[i2] * wi, vi = re[i2] * wi + im[i2] * wr;
+          re[i2] = re[i1] - vr; im[i2] = im[i1] - vi;
+          re[i1] += vr; im[i1] += vi;
+        }
+      }
+    }
+  },
+  /** Hann 윈도우 파워 스펙트럼 */
+  spectrum(x, fs) {
+    const n = Math.max(4, x.length);
+    const N = 1 << Math.ceil(Math.log2(n));
+    const re = new Float64Array(N), im = new Float64Array(N);
+    const m = mean(x);
+    for (let i = 0; i < n; i++) {
+      const w = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / Math.max(1, n - 1));
+      re[i] = (x[i] - m) * w;
+    }
+    this.fft(re, im);
+    const half = N >> 1, freqs = new Float64Array(half), mags = new Float64Array(half);
+    for (let i = 0; i < half; i++) {
+      freqs[i] = i * fs / N;
+      mags[i] = Math.hypot(re[i], im[i]) * 2 / n;
+    }
+    return { freqs, mags, df: fs / N };
+  },
+  /** 대역 내 최대 피크 + 대역 파워 대비 비율(=SNR 대용) */
+  peakInBand(spec, f1, f2) {
+    const { freqs, mags } = spec;
+    let total = 0, peak = 0, pi = -1;
+    for (let i = 1; i < freqs.length; i++) {
+      if (freqs[i] < f1 || freqs[i] > f2) continue;
+      const p = mags[i] * mags[i];
+      total += p;
+      if (p > peak) { peak = p; pi = i; }
+    }
+    if (pi < 0 || total <= 0) return { freq: 0, power: 0, ratio: 0, snrDb: 0 };
+    // 피크 주변 3개 빈을 신호로, 나머지를 잡음으로
+    let sig = 0;
+    for (let k = Math.max(1, pi - 1); k <= Math.min(mags.length - 1, pi + 1); k++) {
+      if (freqs[k] >= f1 && freqs[k] <= f2) sig += mags[k] * mags[k];
+    }
+    const noise = Math.max(1e-12, total - sig);
+    return { freq: freqs[pi], power: peak, ratio: clamp(sig / total, 0, 1), snrDb: 10 * Math.log10(Math.max(1e-9, sig / noise)) };
+  },
+  bandPower(spec, f1, f2) {
+    const { freqs, mags, df } = spec;
+    let p = 0;
+    for (let i = 1; i < freqs.length; i++) if (freqs[i] >= f1 && freqs[i] <= f2) p += mags[i] * mags[i] * df;
+    return p;
+  },
+  /** 적응 임계값 기반 피크 검출 (불응기 minGap 초) */
+  peaks(x, fs, minGap = 0.33, thrK = 0.35) {
+    if (x.length < 5) return [];
+    const mx = Math.max(...x), sd = std(x);
+    const thr = Math.max(mx * thrK, mean(x) + 0.5 * sd);
+    const idx = []; let last = -Infinity;
+    for (let i = 1; i < x.length - 1; i++) {
+      if (x[i] > thr && x[i] >= x[i - 1] && x[i] > x[i + 1] && (i - last) / fs >= minGap) { idx.push(i); last = i; }
+    }
+    return idx;
+  },
+  /** 선형 보간 리샘플 */
+  resample(y, fsIn, fsOut) {
+    const nOut = Math.max(2, Math.floor(y.length / fsIn * fsOut));
+    const out = new Array(nOut);
+    for (let i = 0; i < nOut; i++) {
+      const t = i * fsIn / fsOut, i0 = Math.floor(t), f = t - i0;
+      out[i] = (y[Math.min(i0, y.length - 1)] || 0) * (1 - f) + (y[Math.min(i0 + 1, y.length - 1)] || 0) * f;
+    }
+    return out;
+  }
+};
+
+/* ---------- 2. HRV (RR 간격 → 자율신경 지표) ---------- */
+const HRV = {
+  fromRR(rr) {
+    if (!rr || rr.length < 5) return null;
+    const d = [];
+    for (let i = 1; i < rr.length; i++) d.push(rr[i] - rr[i - 1]);
+    const rmssd = Math.sqrt(mean(d.map(v => v * v)));
+    const sdnn = std(rr);
+    const pnn50 = 100 * d.filter(v => Math.abs(v) > 50).length / d.length;
+    const mn = Math.min(...rr), mx = Math.max(...rr);
+    const bin = 50, hist = {};
+    rr.forEach(v => { const k = Math.floor(v / bin); hist[k] = (hist[k] || 0) + 1; });
+    let mk = null, mv = -1;
+    for (const k in hist) if (hist[k] > mv) { mv = hist[k]; mk = +k; }
+    const amo = 100 * mv / rr.length;                  // 변이도 폭(백분율)
+    const mo = (mk * bin + bin / 2) / 1000;            // 최빈 RR (초)
+    const mxdmn = (mx - mn) / 1000;                    // 변이 범위 (초)
+    const si = (mxdmn > 0.001 && mo > 0) ? amo / (2 * mo * mxdmn) : null; // Baevsky 스트레스 지수
+    return {
+      n: rr.length, hr: 60000 / mean(rr), rmssd, sdnn, pnn50, si,
+      mo: mo * 1000, amo, mxdmn: mxdmn * 1000,
+      duration: rr.reduce((s, v) => s + v, 0) / 1000
+    };
+  },
+  /** LF/HF: RR 타코그램을 4Hz로 보간해 스펙트럼 적분. 45초 미만이면 신뢰 불가로 표시 */
+  lfHf(rr) {
+    const total = rr.reduce((s, v) => s + v, 0) / 1000;
+    if (rr.length < 20 || total < 45) return { ok: false, need: Math.max(0, 45 - total) };
+    const t = [0], x = [rr[0]];
+    for (let i = 1; i < rr.length; i++) { t.push(t[i - 1] + rr[i - 1] / 1000); x.push(rr[i]); }
+    const fs = 4;
+    const n = Math.floor(t[t.length - 1] * fs);
+    const y = new Array(n);
+    for (let i = 0; i < n; i++) {
+      const tt = i / fs;
+      let j = 1; while (j < t.length - 1 && t[j] < tt) j++;
+      const f = (tt - t[j - 1]) / Math.max(1e-6, t[j] - t[j - 1]);
+      y[i] = x[j - 1] + f * (x[j] - x[j - 1]);
+    }
+    const det = Sig.detrend(y);
+    const spec = Sig.spectrum(det, fs);
+    const lf = Sig.bandPower(spec, 0.04, 0.15), hf = Sig.bandPower(spec, 0.15, 0.40);
+    const tp = Sig.bandPower(spec, 0.0033, 0.40);
+    return { ok: true, lf, hf, lfhf: hf > 1e-12 ? lf / hf : null, tp, hfNorm: tp > 1e-12 ? 100 * hf / tp : null };
+  }
+};
+
+/* ---------- 3. 개인 기준선 / 위험 등급 ---------- */
+const RISK_LEVELS = [
+  { id: 0, name: '안정', color: 'var(--mint)', css: 'mint', lo: 0, hi: 35 },
+  { id: 1, name: '주의', color: 'var(--cyan)', css: 'cyan', lo: 35, hi: 55 },
+  { id: 2, name: '경계', color: 'var(--amber)', css: 'amber', lo: 55, hi: 75 },
+  { id: 3, name: '위기', color: 'var(--magenta)', css: 'magenta', lo: 75, hi: 101 }
+];
+const levelOf = r => RISK_LEVELS.find(l => r >= l.lo && r < l.hi) || RISK_LEVELS[3];
+/* 인구 기준 초기값 — 세션이 쌓이면 개인 값으로 대체됨 (프로토타입 휴리스틱) */
+const POP = { hr: 68, rmssd: 42, sdnn: 48, br: 14.5, si: 90, vti: 35, agit: 25 };
+
+const Baseline = {
+  stats: null,
+  compute(sessions) {
+    const good = sessions.filter(s => s.hr && s.rmssd);
+    if (good.length < 3) return null;
+    const pick = k => { const a = good.map(s => s[k]).filter(v => v != null && isFinite(v)); return a.length >= 3 ? { m: mean(a), s: Math.max(1e-3, std(a)), n: a.length } : null; };
+    return { hr: pick('hr'), rmssd: pick('rmssd'), sdnn: pick('sdnn'), br: pick('br'), si: pick('si'), vti: pick('vti'), agit: pick('agit'), n: good.length };
+  },
+  z(val, st, key) {
+    const b = st && st[key];
+    if (!b) return null;
+    return (val - b.m) / b.s;
+  },
+  progress(n) { return clamp(Math.round(n / 8 * 100), 0, 100); }
+};
+
+/* ---------- 4. 저장소 ---------- */
+const DB = {
+  KEY: 'emotion-watch.v1',
+  data: { sessions: [], diary: [], sleep: [], events: [], consents: {}, settings: {} },
+  load() {
+    try {
+      const raw = localStorage.getItem(this.KEY);
+      if (raw) {
+        const d = JSON.parse(raw);
+        this.data = Object.assign(this.data, d);
+      }
+    } catch (e) { console.warn('저장소 읽기 실패', e); }
+    return this.data;
+  },
+  save() {
+    try { localStorage.setItem(this.KEY, JSON.stringify(this.data)); }
+    catch (e) { Toast('저장 공간이 부족해 기록을 저장하지 못했습니다', 'warn', e.message); }
+  },
+  addSession(s) { this.data.sessions.push(s); if (this.data.sessions.length > 800) this.data.sessions.shift(); this.save(); },
+  addEvent(lv, text, tag) {
+    this.data.events.unshift({ ts: Date.now(), lv, text, tag: tag || '' });
+    if (this.data.events.length > 200) this.data.events.pop();
+    this.save();
+  },
+  size() { try { return (localStorage.getItem(this.KEY) || '').length; } catch (e) { return 0; } },
+  wipe() { this.data = { sessions: [], diary: [], sleep: [], events: [], consents: {}, settings: {} }; this.save(); }
+};
+
+/* ---------- 5. UI 헬퍼 ---------- */
+function Toast(title, kind = '', body = '') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  el.innerHTML = `<b>${title}</b>${body ? `<small>${body}</small>` : ''}`;
+  $('#toasts').appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(14px)'; setTimeout(() => el.remove(), 300); }, kind === 'danger' ? 9000 : 4600);
+}
+function openModal(eyebrow, title, html) {
+  $('#modalEyebrow').textContent = eyebrow;
+  $('#modalTitle').textContent = title;
+  $('#modalBody').innerHTML = html;
+  $('#modal').classList.add('open');
+}
+function closeModal() { $('#modal').classList.remove('open'); }
+function setText(sel, v) { const e = $(sel); if (e) e.textContent = v; }
+
+/* ---------- 6. 리듬 리본 (시그니처 캔버스) ---------- */
+const Ribbon = {
+  cv: null, ctx: null, W: 0, H: 0, dpr: 1,
+  buf: [], max: 460, t: 0, mode: 'ambient', chaos: 0.18, live: false,
+  init() {
+    this.cv = $('#ribbon'); this.ctx = this.cv.getContext('2d');
+    const fit = () => {
+      const r = this.cv.getBoundingClientRect();
+      this.dpr = Math.min(2, window.devicePixelRatio || 1);
+      this.W = r.width; this.H = r.height;
+      this.cv.width = Math.round(r.width * this.dpr);
+      this.cv.height = Math.round(r.height * this.dpr);
+      this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+      this.max = Math.max(240, Math.round(r.width / 2));
+    };
+    fit();
+    window.addEventListener('resize', fit);
+    if (window.ResizeObserver) new ResizeObserver(fit).observe(this.cv);
+    this.prefill();
+    const loop = () => { this.step(); this.draw(); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  },
+  /** 첫 화면부터 리본이 가득 차도록 과거 구간을 미리 채운다 */
+  prefill() {
+    this.chaos = State.ambientChaos;
+    this.buf = [];
+    for (let i = this.max; i > 0; i--) this.buf.push(this.ambientSample(this.t - i / 60));
+  },
+  ambientSample(t) {
+    const c = this.chaos;
+    const hr = 1.05 + c * 0.22;
+    let v = Math.sin(2 * Math.PI * hr * t) * (0.55 - 0.12 * c);
+    v += Math.sin(2 * Math.PI * 0.24 * t) * (0.30 - 0.26 * c);          // 호흡성 동성부정맥
+    v += (Math.random() - 0.5) * (0.05 + c * 0.5);                       // 잡음
+    if (c > 0.55 && Math.random() < 0.02) v += (Math.random() - 0.5) * 2.2 * c; // 자율신경 급변 스파이크
+    return clamp(v, -1.4, 1.4);
+  },
+  push(v) {
+    this.buf.push(v);
+    while (this.buf.length > this.max) this.buf.shift();
+  },
+  step() {
+    this.t += 1 / 60;
+    if (!this.live) {
+      const target = State.ambientChaos;
+      this.chaos += (target - this.chaos) * 0.02;
+      this.push(this.ambientSample(this.t));
+    }
+    if (this.buf.length > this.max) this.buf.shift();
+  },
+  draw() {
+    const { ctx, W, H } = this;
+    if (!W) return;
+    ctx.clearRect(0, 0, W, H);
+    // 격자
+    ctx.strokeStyle = 'rgba(122,158,214,.09)'; ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += 32) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+    ctx.beginPath(); ctx.moveTo(0, H / 2); ctx.lineTo(W, H / 2); ctx.stroke();
+    // 리본 밴드
+    const n = this.buf.length; if (n < 2) return;
+    const dx = W / (this.max - 1), mid = H / 2, amp = H * 0.34;
+    const lv = levelOf(State.risk);
+    const col = lv.css === 'mint' ? '#3be8b0' : lv.css === 'cyan' ? '#38e1ff' : lv.css === 'amber' ? '#ffb020' : '#ff3d7f';
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const x = i * dx, y = mid - this.buf[i] * amp;
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    // 채움
+    ctx.save();
+    ctx.lineTo((n - 1) * dx, H); ctx.lineTo(0, H); ctx.closePath();
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, col + '00'); g.addColorStop(0.55, col + '2a'); g.addColorStop(1, col + '05');
+    ctx.fillStyle = g; ctx.fill();
+    ctx.restore();
+    // 선
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const x = i * dx, y = mid - this.buf[i] * amp;
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.strokeStyle = col; ctx.lineWidth = 1.7;
+    ctx.shadowColor = col; ctx.shadowBlur = 12; ctx.stroke(); ctx.shadowBlur = 0;
+    // 스캔 커서
+    const cx = (n - 1) * dx;
+    ctx.strokeStyle = 'rgba(231,238,251,.5)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx, 8); ctx.lineTo(cx, H - 8); ctx.stroke();
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(cx, mid - this.buf[n - 1] * amp, 3.2, 0, 7); ctx.fill();
+  }
+};
+
+/* ---------- 7. 캔버스 차트 ---------- */
+const Chart = {
+  prep(cv, h) {
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const r = cv.getBoundingClientRect();
+    const w = Math.max(120, r.width), hh = h || r.height || 200;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(hh * dpr);
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, hh);
+    return { ctx, w, h: hh };
+  },
+  line(cv, series, opts = {}) {
+    const { ctx, w, h } = this.prep(cv, opts.h);
+    const padL = 34, padR = 10, padT = 12, padB = 22;
+    const iw = w - padL - padR, ih = h - padT - padB;
+    const yMin = opts.yMin != null ? opts.yMin : 0, yMax = opts.yMax != null ? opts.yMax : 100;
+    const X = i => padL + (series.max && series.max > 1 ? (i / (series.max - 1)) * iw : 0);
+    const Y = v => padT + ih - ((clamp(v, yMin, yMax) - yMin) / (yMax - yMin)) * ih;
+    // 눈금
+    ctx.font = '10px "IBM Plex Mono", monospace'; ctx.fillStyle = '#5d6f8d'; ctx.strokeStyle = 'rgba(122,158,214,.12)';
+    for (let g = 0; g <= 4; g++) {
+      const v = yMin + (yMax - yMin) * g / 4, y = Y(v);
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR, y); ctx.stroke();
+      ctx.fillText(String(Math.round(v)), 6, y + 3.5);
+    }
+    // 임계선
+    (opts.thresholds || []).forEach(t => {
+      const y = Y(t.v);
+      ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = t.color; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR, y); ctx.stroke(); ctx.restore();
+    });
+    const drawPath = (arr, color, dash, width) => {
+      if (!arr || arr.length < 1) return;
+      ctx.save(); ctx.setLineDash(dash || []); ctx.strokeStyle = color; ctx.lineWidth = width || 2;
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      arr.forEach((p, i) => { const x = X(p.x), y = Y(p.y); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+      ctx.stroke(); ctx.restore();
+      ctx.fillStyle = color;
+      arr.forEach(p => { ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), 2.6, 0, 7); ctx.fill(); });
+    };
+    drawPath(series.main, opts.color || '#38e1ff');
+    if (series.forecast) drawPath(series.forecast, opts.fcColor || '#ff3d7f', [6, 4], 1.8);
+    if (series.second) drawPath(series.second, '#8b5cf6', [], 1.6);
+    if (!series.main || !series.main.length) {
+      ctx.fillStyle = '#5d6f8d'; ctx.font = '12px "Noto Sans KR", sans-serif';
+      ctx.fillText(opts.empty || '표본이 부족합니다', padL + 8, padT + ih * 0.3);
+    }
+  },
+  bars(cv, items, opts = {}) {
+    const { ctx, w, h } = this.prep(cv, opts.h);
+    const padL = 92, padR = 44, padT = 8, padB = 8;
+    const iw = w - padL - padR, ih = h - padT - padB;
+    const n = Math.max(1, items.length), rowH = ih / n;
+    ctx.font = '11px "IBM Plex Mono", monospace';
+    items.forEach((it, i) => {
+      const y = padT + i * rowH, bh = Math.min(15, rowH * 0.52);
+      ctx.fillStyle = '#93a6c4'; ctx.font = '11.5px "Noto Sans KR", sans-serif';
+      ctx.fillText(it.label, 0, y + rowH / 2 + 4);
+      ctx.fillStyle = 'rgba(122,158,214,.13)';
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(padL, y + (rowH - bh) / 2, iw, bh, 4) : ctx.rect(padL, y + (rowH - bh) / 2, iw, bh); ctx.fill();
+      const v = clamp(it.value, 0, 100) / 100;
+      const g = ctx.createLinearGradient(padL, 0, padL + iw * v, 0);
+      g.addColorStop(0, it.c1 || '#38e1ff'); g.addColorStop(1, it.c2 || '#8b5cf6');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(padL, y + (rowH - bh) / 2, Math.max(2, iw * v), bh, 4) : ctx.rect(padL, y + (rowH - bh) / 2, Math.max(2, iw * v), bh); ctx.fill();
+      ctx.fillStyle = '#e7eefb'; ctx.font = '11px "IBM Plex Mono", monospace';
+      ctx.fillText(Math.round(it.value), padL + iw + 8, y + rowH / 2 + 4);
+    });
+  },
+  ring(cv, value, color) {
+    const size = cv.width;
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, size, size);
+    const cx = size / 2, cy = size / 2, r = size / 2 - 14, lw = 13;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(122,158,214,.14)'; ctx.lineWidth = lw; ctx.stroke();
+    const v = clamp((value == null ? 0 : value) / 100, 0, 1);
+    if (value != null) {
+      const a0 = -Math.PI / 2, a1 = a0 + v * Math.PI * 2;
+      ctx.beginPath(); ctx.arc(cx, cy, r, a0, a1);
+      ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round';
+      ctx.shadowColor = color; ctx.shadowBlur = 16; ctx.stroke(); ctx.shadowBlur = 0;
+    }
+    // 눈금 4개
+    for (let i = 0; i < 4; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 2;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(a) * (r + 9), cy + Math.sin(a) * (r + 9));
+      ctx.lineTo(cx + Math.cos(a) * (r + 14), cy + Math.sin(a) * (r + 14));
+      ctx.strokeStyle = 'rgba(122,158,214,.35)'; ctx.lineWidth = 2; ctx.stroke();
+    }
+  },
+  radial24(cv, sleep) {
+    const { ctx, w, h } = this.prep(cv, 250);
+    const cx = w / 2, cy = h / 2, r = Math.min(w, h) / 2 - 34;
+    ctx.strokeStyle = 'rgba(122,158,214,.16)'; ctx.lineWidth = 1;
+    [0.4, 0.7, 1].forEach(k => { ctx.beginPath(); ctx.arc(cx, cy, r * k, 0, 7); ctx.stroke(); });
+    ctx.font = '9.5px "IBM Plex Mono", monospace'; ctx.fillStyle = '#5d6f8d'; ctx.textAlign = 'center';
+    for (let hr = 0; hr < 24; hr += 3) {
+      const a = (hr / 24) * Math.PI * 2 - Math.PI / 2;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(a) * (r + 4), cy + Math.sin(a) * (r + 4));
+      ctx.lineTo(cx + Math.cos(a) * (r + 10), cy + Math.sin(a) * (r + 10));
+      ctx.strokeStyle = 'rgba(122,158,214,.4)'; ctx.stroke();
+      ctx.fillText(String(hr), cx + Math.cos(a) * (r + 20), cy + Math.sin(a) * (r + 20) + 3);
+    }
+    ctx.textAlign = 'left';
+    // 수면 창 (호 = 취침, 청 = 기상)
+    if (sleep && sleep.start != null && sleep.end != null) {
+      const a0 = (sleep.start / 24) * Math.PI * 2 - Math.PI / 2;
+      let span = sleep.end - sleep.start; if (span <= 0) span += 24;
+      const a1 = a0 + (span / 24) * Math.PI * 2;
+      const g = ctx.createRadialGradient(cx, cy, r * 0.4, cx, cy, r);
+      g.addColorStop(0, 'rgba(139,92,246,.05)'); g.addColorStop(1, 'rgba(139,92,246,.34)');
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, a0, a1); ctx.closePath(); ctx.fillStyle = g; ctx.fill();
+      ctx.strokeStyle = 'rgba(139,92,246,.8)'; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+    // 리듬 곡선 (정상 vs 교란)
+    const irr = sleep && sleep.irregularity != null ? clamp(sleep.irregularity, 0, 1) : State.chaosLevel();
+    const col = irr > 0.55 ? '#ff3d7f' : '#38e1ff';
+    ctx.beginPath();
+    for (let i = 0; i <= 240; i++) {
+      const hr = i / 240 * 24;
+      const a = (hr / 24) * Math.PI * 2 - Math.PI / 2;
+      const base = 0.55 + 0.35 * Math.cos((hr - 3) / 24 * Math.PI * 2);
+      const jitter = irr * 0.26 * Math.sin(hr * 2.7) * Math.sin(hr * 0.9) + (irr > 0.5 ? irr * 0.1 * Math.sin(hr * 11.3) : 0);
+      const rr = r * clamp(base + jitter, 0.18, 1);
+      const x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.shadowColor = col; ctx.shadowBlur = 10; ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.font = '10px "IBM Plex Mono", monospace'; ctx.fillStyle = col;
+    ctx.fillText(irr > 0.55 ? '리듬 교란 의심' : '리듬 안정', cx - 34, cy + r + 30);
+  },
+  breath(cv, phase, frac) {
+    const ctx = cv.getContext('2d');
+    const size = cv.width;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, size, size);
+    const cx = size / 2, cy = size / 2;
+    const colors = { inhale: '#38e1ff', hold: '#8b5cf6', exhale: '#3be8b0' };
+    const col = colors[phase] || '#38e1ff';
+    const r = size * (0.16 + 0.16 * frac);
+    ctx.beginPath(); ctx.arc(cx, cy, size * 0.44, 0, 7); ctx.strokeStyle = 'rgba(122,158,214,.14)'; ctx.lineWidth = 2; ctx.stroke();
+    const g = ctx.createRadialGradient(cx, cy, r * 0.2, cx, cy, r);
+    g.addColorStop(0, col + '55'); g.addColorStop(1, col + '08');
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fillStyle = g; ctx.fill();
+    ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.shadowColor = col; ctx.shadowBlur = 20; ctx.stroke(); ctx.shadowBlur = 0;
+  }
+};
+/* ---------- 8. 전역 상태 ---------- */
+const State = {
+  view: 'home',
+  draft: {},          // 현재 세션에서 수집된 신호
+  last: null,         // 마지막 완료 세션
+  fusion: null,
+  risk: 0,
+  ambientChaos: 0.16,
+  baseline: null,
+  measuring: {},
+  wakeLock: null,
+  geo: null,
+  sleep: null,
+  sim: { on: false, t: 0, timer: null, risk: 0 },
+  completed() { return Object.keys(this.draft).filter(k => this.draft[k] && this.draft[k].ok !== false).length; },
+  chaosLevel() { return clamp(this.risk / 100, 0, 1); }
+};
+
+/* ---------- 9. 파형 페인터 ---------- */
+function paintWave(cv, arr, color, opts = {}) {
+  if (!cv) return;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const r = cv.getBoundingClientRect();
+  const w = Math.max(60, r.width || cv.clientWidth || 200), h = Math.max(30, r.height || 56);
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) {
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(122,158,214,.13)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
+  if (!arr || arr.length < 2) {
+    ctx.fillStyle = '#5d6f8d'; ctx.font = '10.5px "IBM Plex Mono", monospace';
+    ctx.fillText(opts.empty || '신호 대기', 8, h / 2 - 6);
+    return;
+  }
+  const n = arr.length;
+  let m = 0; for (let i = 0; i < n; i++) m = Math.max(m, Math.abs(arr[i]));
+  m = m || 1;
+  const step = Math.max(1, Math.ceil(n / w));
+  ctx.beginPath();
+  let started = false;
+  for (let i = 0, x = 0; i < n; i += step, x++) {
+    const y = h / 2 - (arr[i] / m) * (h * 0.42);
+    started ? ctx.lineTo(x, y) : (ctx.moveTo(x, y), started = true);
+  }
+  ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
+  ctx.shadowColor = color; ctx.shadowBlur = 7; ctx.stroke(); ctx.shadowBlur = 0;
+}
+
+/* ---------- 10. 기기 능력 진단 ---------- */
+const Caps = {
+  rows: [],
+  async probe() {
+    const md = navigator.mediaDevices;
+    let torch = false, cams = 0, mics = 0;
+    try {
+      if (md && md.enumerateDevices) {
+        const ds = await md.enumerateDevices();
+        cams = ds.filter(d => d.kind === 'videoinput').length;
+        mics = ds.filter(d => d.kind === 'audioinput').length;
+      }
+      if (md && md.getSupportedConstraints) torch = !!md.getSupportedConstraints().torch;
+    } catch (e) { /* 권한 없으면 개수는 0으로 */ }
+    const R = [
+      { k: '카메라 (getUserMedia)', ok: !!(md && md.getUserMedia), d: cams ? `입력 ${cams}개 감지` : '권한 허용 후 개수 확인' },
+      { k: '플래시 토치 (손끝 PPG)', ok: torch, d: torch ? '후면 카메라 플래시 제어 가능' : '제어 불가 — 얼굴 모드 사용' },
+      { k: '마이크 (Web Audio)', ok: !!(md && md.getUserMedia && (window.AudioContext || window.webkitAudioContext)), d: mics ? `입력 ${mics}개 감지` : '호흡·음성 분석' },
+      { k: '동작 센서 (가속도·자이로)', ok: typeof DeviceMotionEvent !== 'undefined', d: typeof DeviceMotionEvent !== 'undefined' ? (typeof DeviceMotionEvent.requestPermission === 'function' ? 'iOS · 명시적 허용 필요' : '이벤트 수신 가능') : '미지원' },
+      { k: 'Bluetooth LE (HR 서비스)', ok: !!navigator.bluetooth, d: navigator.bluetooth ? '실제 웨어러블 연결 가능' : '미지원 — 시뮬레이션 사용' },
+      { k: '알림 (Notification)', ok: typeof Notification !== 'undefined', d: typeof Notification !== 'undefined' ? '권한 상태: ' + Notification.permission : '미지원' },
+      { k: '화면 켜 두기 (Wake Lock)', ok: !!navigator.wakeLock, d: navigator.wakeLock ? '측정 중 화면 유지' : '미지원' },
+      { k: '진동 (Vibration)', ok: !!navigator.vibrate, d: navigator.vibrate ? '위기 알림 햅틱' : '미지원 (데스크톱)' },
+      { k: '위치 (Geolocation)', ok: !!navigator.geolocation, d: navigator.geolocation ? '에스컬레이션 시 위치 첨부' : '미지원' },
+      { k: '공유 (Web Share)', ok: !!navigator.share, d: navigator.share ? '보호자·의료진에게 요약 전송' : '클립보드 복사로 대체' },
+      { k: '음성 합성 (TTS)', ok: !!window.speechSynthesis, d: window.speechSynthesis ? '한국어 음성 가이드' : '미지원' },
+      { k: '음성 인식 (STT)', ok: !!(window.SpeechRecognition || window.webkitSpeechRecognition), d: (window.SpeechRecognition || window.webkitSpeechRecognition) ? '음성 일지·문진' : '글로 기록으로 대체' },
+      { k: 'Web Crypto (AES-GCM)', ok: !!(window.crypto && crypto.subtle), d: (window.crypto && crypto.subtle) ? '기기 내 암호화 가능' : '미지원 (HTTPS 필요)' },
+      { k: '로컬 저장소', ok: (() => { try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); return true; } catch (e) { return false; } })(), d: '기록 보관' }
+    ];
+    this.rows = R;
+    this.render();
+    return R;
+  },
+  render() {
+    const tb = $('#capsTbl');
+    if (!tb) return;
+    tb.innerHTML = `<thead><tr><th>기능</th><th>상태</th><th>설명</th></tr></thead><tbody>` +
+      this.rows.map(r => `<tr><td>${r.k}</td><td class="num" style="color:${r.ok ? 'var(--mint)' : 'var(--ink-faint)'}">${r.ok ? '사용 가능' : '사용 불가'}</td><td style="color:var(--ink-dim)">${r.d}</td></tr>`).join('') +
+      `</tbody>`;
+    const map = {};
+    this.rows.forEach(r => { map[r.k.split(' ')[0]] = r.ok; });
+    const chips = [
+      ['카메라', this.rows[0].ok], ['마이크', this.rows[2].ok], ['모션', this.rows[3].ok],
+      ['BLE', this.rows[4].ok], ['알림', this.rows[5].ok]
+    ];
+    $('#capChips').innerHTML = chips.map(([n, ok]) =>
+      `<span class="chip ${ok ? 'on' : 'off'}"><span class="dot"></span>${n}</span>`).join('') +
+      `<span class="chip ${navigator.onLine ? 'on' : 'off'}"><span class="dot"></span>${navigator.onLine ? '온라인' : '오프라인'}</span>`;
+  }
+};
+
+/* ---------- 11. 카메라 PPG (rPPG / 손끝) ---------- */
+const PPG = {
+  stream: null, track: null, raf: null, mode: 'face', torch: false, torchOK: false,
+  R: [], G: [], B: [], T: [], sig: [], hr: null, ratio: 0, snr: 0, skin: 0, bright: 0,
+  t0: 0, DUR: 30, sampleCv: null, sctx: null, raw: [], peakTimes: [],
+  async start() {
+    const md = navigator.mediaDevices;
+    if (!md || !md.getUserMedia) { Toast('카메라를 쓸 수 없습니다', 'warn', 'HTTPS 환경과 브라우저 권한이 필요합니다.'); return; }
+    try {
+      const video = $('#camVideo');
+      this.stream = await md.getUserMedia({
+        video: this.mode === 'finger'
+          ? { facingMode: { ideal: 'environment' }, width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 30 } }
+          : { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 30 } },
+        audio: false
+      });
+    } catch (e) {
+      Toast('카메라 권한이 필요합니다', 'warn', e.name === 'NotAllowedError' ? '주소창의 권한 요청을 허용해 주세요.' : e.message);
+      return;
+    }
+    const video = $('#camVideo');
+    video.srcObject = this.stream;
+    video.classList.toggle('mirror', this.mode === 'face');
+    try { await video.play(); } catch (e) { /* 자동재생 무시 */ }
+    this.track = this.stream.getVideoTracks()[0];
+    this.torchOK = false;
+    try {
+      const c = this.track.getCapabilities ? this.track.getCapabilities() : {};
+      this.torchOK = !!c.torch;
+      if (this.mode === 'finger' && this.torchOK) { await this.track.applyConstraints({ advanced: [{ torch: true }] }); this.torch = true; }
+    } catch (e) { /* torch 미지원 */ }
+    $('#camTag').textContent = this.mode === 'face' ? '전면 · 얼굴 rPPG' : (this.torch ? '후면 · 손끝 + 플래시 ON' : '후면 · 손끝 (플래시 없음)');
+    $('#camBox').classList.remove('hidden');
+    this.sampleCv = document.createElement('canvas');
+    this.sampleCv.width = 96; this.sampleCv.height = 72;
+    this.sctx = this.sampleCv.getContext('2d', { willReadFrequently: true });
+    this.R = []; this.G = []; this.B = []; this.T = []; this.sig = []; this.raw = []; this.peakTimes = [];
+    this.hr = null; this.t0 = performance.now();
+    State.measuring.cam = true;
+    $('#btnCamStart').disabled = true; $('#btnCamStop').disabled = false;
+    $('#modCam').classList.add('active');
+    setText('#camState', '측정 중');
+    await requestWake();
+    this.loop();
+    State.draft.cam = null;
+  },
+  loop() {
+    const video = $('#camVideo');
+    const tick = () => {
+      if (!State.measuring.cam) return;
+      const el = (performance.now() - this.t0) / 1000;
+      $('#camProg').style.width = clamp(el / this.DUR * 100, 0, 100) + '%';
+      if (video.readyState >= 2) {
+        this.sctx.drawImage(video, 0, 0, 96, 72);
+        const d = this.sctx.getImageData(0, 0, 96, 72).data;
+        let sr = 0, sg = 0, sb = 0, cnt = 0, br = 0, tot = 0;
+        if (this.mode === 'face') {
+          for (let i = 0; i < d.length; i += 4) {
+            const r = d[i], g = d[i + 1], b = d[i + 2];
+            br += r + g + b; tot++;
+            // 피부색 마스크 (YCrCb + RGB 휴리스틱)
+            const y = 0.299 * r + 0.587 * g + 0.114 * b;
+            const cr = (r - y) * 0.713 + 128, cb = (b - y) * 0.564 + 128;
+            if (r > 55 && r > g && g > b && (r - g) > 4 && (r - b) > 8 && cr > 132 && cr < 180 && cb > 77 && cb < 130) {
+              sr += r; sg += g; sb += b; cnt++;
+            }
+          }
+        } else {
+          const x0 = 30, x1 = 66, y0 = 20, y1 = 52;
+          for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+            const i = (y * 96 + x) * 4;
+            sr += d[i]; sg += d[i + 1]; sb += d[i + 2]; br += d[i] + d[i + 1] + d[i + 2]; cnt++; tot++;
+          }
+        }
+        this.skin = this.mode === 'face' ? cnt / Math.max(1, tot) : 1;
+        this.bright = (br / Math.max(1, tot * 3)) / 255;
+        if (cnt > 20) {
+          this.R.push(sr / cnt); this.G.push(sg / cnt); this.B.push(sb / cnt);
+          this.T.push(el);
+          const keep = 30 * 40;
+          if (this.R.length > keep) { this.R.shift(); this.G.shift(); this.B.shift(); this.T.shift(); }
+          this.filtered();
+          const tail = this.sig.slice(-Math.round(this.fps() * 8));
+          const fs = this.fps();
+          if (tail.length > fs * 4) {
+            const det = Sig.detrend(tail);
+            const bp = Sig.biquad(det, fs, 1.9, 0.62);
+            const spec = Sig.spectrum(bp, fs);
+            const pk = Sig.peakInBand(spec, 0.75, 3.4);
+            if (pk.freq > 0) { this.hr = pk.freq * 60; this.ratio = pk.ratio; this.snr = pk.snrDb; }
+          }
+        }
+        const q = this.quality();
+        setText('#camLive', 'BPM ' + (this.hr ? Math.round(this.hr) : '—'));
+        setText('#camQ', '품질 ' + q + '%');
+        paintWave($('#camWave'), this.sig.slice(-Math.round(this.fps() * 6)), '#38e1ff', { empty: '혈류 신호 수집 중…' });
+      }
+      if (el >= this.DUR) { this.finish(); return; }
+      this.raf = requestAnimationFrame(tick);
+    };
+    this.raf = requestAnimationFrame(tick);
+  },
+  fps() { return this.T.length > 2 ? (this.T.length - 1) / Math.max(0.5, this.T[this.T.length - 1] - this.T[0]) : 30; },
+  /** CHROM: X=3R-2G, Y=1.5R+G-1.5B, S=X-(σX/σY)Y  (얼굴) / 적색 채널 정규화 (손끝) */
+  filtered() {
+    const n = this.R.length;
+    if (n < 8) return;
+    const W = Math.min(n, Math.round(this.fps() * 1.6));
+    const R = this.R.slice(-W), G = this.G.slice(-W), B = this.B.slice(-W);
+    let out;
+    if (this.mode === 'face') {
+      const X = R.map((r, i) => 3 * r - 2 * G[i]);
+      const Y = R.map((r, i) => 1.5 * r + G[i] - 1.5 * B[i]);
+      const sX = std(X), sY = std(Y);
+      const a = sY > 1e-6 ? sX / sY : 0;
+      out = X.map((v, i) => v - a * Y[i]);
+    } else {
+      const m = mean(R);
+      out = R.map(v => (v - m) / Math.max(1e-6, m));
+    }
+    this.raw = out.slice();
+    const d = Sig.detrend(out);
+    const fs = this.fps();
+    const bp = Sig.biquad(d, fs, 1.9, 0.62);
+    const norm = Math.max(1e-9, std(bp));
+    this.sig = bp.map(v => v / norm);
+  },
+  quality() {
+    const amp = std(this.sig);
+    const skinOK = this.mode === 'finger' ? 1 : clamp(this.skin / 0.12, 0, 1);
+    const brightOK = clamp((this.bright - 0.06) / 0.22, 0, 1);
+    const snrOK = clamp((this.snr + 2) / 10, 0, 1);
+    const mot = Motion.agitation != null ? clamp(1 - Motion.agitation / 60, 0, 1) : 1;
+    return Math.round(100 * clamp(0.28 * skinOK + 0.2 * brightOK + 0.34 * snrOK + 0.18 * mot, 0, 1));
+  },
+  async stop(silent) {
+    State.measuring.cam = false;
+    if (this.raf) cancelAnimationFrame(this.raf), this.raf = null;
+    if (this.track) { try { if (this.torch) await this.track.applyConstraints({ advanced: [{ torch: false }] }); } catch (e) {} }
+    if (this.stream) this.stream.getTracks().forEach(t => t.stop());
+    this.stream = null; this.track = null; this.torch = false;
+    $('#camVideo').srcObject = null;
+    $('#btnCamStart').disabled = false; $('#btnCamStop').disabled = true;
+    $('#modCam').classList.remove('active');
+    setText('#camTag', '카메라 꺼짐');
+    setText('#camState', silent ? '중지됨' : '완료');
+    await releaseWake();
+  },
+  finish() {
+    const fs = this.fps();
+    const det = Sig.detrend(this.sig);
+    const bp = Sig.biquad(det, fs, 1.9, 0.62);
+    const spec = Sig.spectrum(bp, fs);
+    const pk = Sig.peakInBand(spec, 0.75, 3.4);
+    const pkIdx = Sig.peaks(bp, fs, 0.32, 0.25);
+    const rr = [];
+    for (let i = 1; i < pkIdx.length; i++) {
+      const ms = (pkIdx[i] - pkIdx[i - 1]) / fs * 1000;
+      if (ms > 300 && ms < 2000) rr.push(ms);
+    }
+    const hrv = HRV.fromRR(rr);
+    const lfhf = HRV.lfHf(rr);
+    const q = this.quality();
+    const hr = hrv ? hrv.hr : (pk.freq ? pk.freq * 60 : null);
+    const rsa = (() => { // 호흡성 동성부정맥 진폭 (RR의 HF 대역 파워 제곱근)
+      if (!rr.length) return null;
+      return Math.sqrt(Sig.bandPower(spec, 0.15, 0.4));
+    })();
+    State.draft.cam = {
+      ok: !!hr, hr, rmssd: hrv ? hrv.rmssd : null, sdnn: hrv ? hrv.sdnn : null,
+      pnn50: hrv ? hrv.pnn50 : null, si: hrv ? hrv.si : null, rrN: rr.length,
+      lfhf: lfhf.ok ? lfhf.lfhf : null, lfhfOk: !!lfhf.ok, need: lfhf.need,
+      quality: q, snr: this.snr, rsa, mode: this.mode, dur: this.DUR
+    };
+    setText('#rHr', hr ? Math.round(hr) : '—');
+    setText('#rRmssd', hrv ? num(hrv.rmssd, 0) : '—');
+    setText('#rSdnn', hrv ? num(hrv.sdnn, 0) : '—');
+    setText('#rSi', hrv && hrv.si != null ? num(hrv.si, 0) : '—');
+    setText('#rRsa', rsa != null ? num(rsa, 2) : '—');
+    $('#modCam').classList.add('done');
+    this.stop(false);
+    if (q < 40 || !hr) {
+      Toast('신호 품질이 낮습니다', 'warn', '조도를 높이고 30초 동안 움직이지 않으면 정확도가 올라갑니다. 다시 측정해 보세요.');
+    } else {
+      Toast('카메라 측정 완료', 'ok', `심박 ${Math.round(hr)} bpm · 품질 ${q}% · RR ${rr.length}개`);
+      DB.addEvent(1, `카메라 PPG 측정 완료 — 심박 ${Math.round(hr)} bpm, 품질 ${q}%`, 'PPG');
+    }
+    syncDraft();
+  }
+};
+
+/* ---------- 12. 마이크: 호흡 + 음성 긴장도 ---------- */
+const Mic = {
+  ac: null, stream: null, analyser: null, buf: null, freq: null, raf: null,
+  env: [], envT: [], f0: [], rms: [], spec: [], t0: 0, DUR: 20, br: null, brCv: null, vti: null, f0med: null, q: 0,
+  async start() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { Toast('마이크를 쓸 수 없습니다', 'warn'); return; }
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 }
+      });
+    } catch (e) {
+      Toast('마이크 권한이 필요합니다', 'warn', e.name === 'NotAllowedError' ? '주소창의 권한 요청을 허용해 주세요.' : e.message);
+      return;
+    }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    this.ac = new AC();
+    if (this.ac.state === 'suspended') await this.ac.resume();
+    const src = this.ac.createMediaStreamSource(this.stream);
+    this.analyser = this.ac.createAnalyser();
+    this.analyser.fftSize = 2048;
+    this.analyser.smoothingTimeConstant = 0.5;
+    src.connect(this.analyser);
+    this.buf = new Float32Array(this.analyser.fftSize);
+    this.freq = new Uint8Array(this.analyser.frequencyBinCount);
+    this.env = []; this.envT = []; this.f0 = []; this.rms = []; this.spec = [];
+    this.t0 = performance.now();
+    State.measuring.mic = true;
+    $('#btnMicStart').disabled = true; $('#btnMicStop').disabled = false;
+    $('#modMic').classList.add('active');
+    setText('#micState', '측정 중');
+    await requestWake();
+    this.loop();
+  },
+  loop() {
+    const tick = () => {
+      if (!State.measuring.mic) return;
+      const el = (performance.now() - this.t0) / 1000;
+      $('#micProg').style.width = clamp(el / this.DUR * 100, 0, 100) + '%';
+      this.analyser.getFloatTimeDomainData(this.buf);
+      this.analyser.getByteFrequencyData(this.freq);
+      const fs = this.ac.sampleRate;
+      let sum = 0; for (let i = 0; i < this.buf.length; i++) sum += this.buf[i] * this.buf[i];
+      const rms = Math.sqrt(sum / this.buf.length);
+      this.rms.push(rms);
+      this.env.push(rms); this.envT.push(el);
+      if (this.env.length > 20 * 60) { this.env.shift(); this.envT.shift(); }
+      const p = this.pitch(fs);
+      if (p) this.f0.push(p);
+      let sc = 0, sf = 0, hf = 0, lfE = 0;
+      for (let i = 1; i < this.freq.length; i++) {
+        const f = i * fs / 2 / this.freq.length;
+        const v = this.freq[i];
+        sc += f * v; sf += v;
+        if (f > 2000 && f < 6000) hf += v; else if (f >= 100 && f < 2000) lfE += v;
+      }
+      this.spec.push({ t: el, centroid: sf ? sc / sf : 0, hfRatio: (hf + lfE) ? hf / (hf + lfE) : 0 });
+      const tail = this.rms.slice(-Math.round(20 * 20));
+      paintWave($('#micWave'), tail, '#8b5cf6', { empty: '마이크 신호 대기…' });
+      setText('#rMicQ', this.liveQ() + '%');
+      setText('#rF0', p ? Math.round(p) + ' Hz' : '—');
+      if (el >= this.DUR) { this.finish(); return; }
+      this.raf = requestAnimationFrame(tick);
+    };
+    this.raf = requestAnimationFrame(tick);
+  },
+  /** 자기상관 기반 F0 추정 (60~400 Hz) */
+  pitch(fs) {
+    const b = this.buf, n = b.length;
+    let e = 0; for (let i = 0; i < n; i++) e += b[i] * b[i];
+    if (e / n < 3e-5) return null;            // 무음
+    const minLag = Math.floor(fs / 400), maxLag = Math.floor(fs / 60);
+    let best = -1, bestLag = -1;
+    for (let lag = minLag; lag <= maxLag; lag++) {
+      let s = 0;
+      for (let i = 0; i < n - lag; i += 2) s += b[i] * b[i + lag];
+      s /= (n - lag);
+      if (s > best) { best = s; bestLag = lag; }
+    }
+    if (bestLag < 0) return null;
+    const clarity = best / (e / n);
+    if (clarity < 0.28) return null;
+    return fs / bestLag;
+  },
+  liveQ() {
+    const r = mean(this.rms.slice(-60));
+    return Math.round(clamp(100 * (0.35 + 0.65 * clamp(r / 0.05, 0, 1)), 0, 100));
+  },
+  finish() {
+    const fs = 20; // 봉투 샘플링 근사
+    const env = this.env;
+    const res = Sig.resample(env, 20, 10);
+    const det = Sig.detrend(res);
+    const bp = Sig.biquad(det, 10, 0.3, 1.1);       // 호흡 대역 0.08~0.6 Hz
+    const spec = Sig.spectrum(bp, 10);
+    const pk = Sig.peakInBand(spec, 0.08, 0.62);
+    this.br = pk.freq > 0 ? pk.freq * 60 : null;
+    // 호흡 봉투 피크 간격 → 규칙성
+    const pi = Sig.peaks(bp, 10, 1.2, 0.2);
+    const iv = [];
+    for (let i = 1; i < pi.length; i++) iv.push((pi[i] - pi[i - 1]) / 10);
+    this.brCv = iv.length >= 2 ? 100 * std(iv) / Math.max(0.1, mean(iv)) : null;
+    // 음성 긴장도
+    const f0 = this.f0.filter(v => v > 60 && v < 400);
+    this.f0med = f0.length ? median(f0) : null;
+    const jit = (() => { let s = 0, c = 0; for (let i = 1; i < f0.length; i++) { s += Math.abs(f0[i] - f0[i - 1]); c++; } return c ? s / c / Math.max(1, this.f0med) * 100 : null; })();
+    const cv = f0.length > 3 ? 100 * std(f0) / mean(f0) : null;
+    const hfr = this.spec.length ? mean(this.spec.map(s => s.hfRatio)) : 0;
+    const loud = mean(this.rms);
+    const parts = [];
+    if (cv != null) parts.push(clamp(cv / 18, 0, 1) * 0.34);
+    if (jit != null) parts.push(clamp(jit / 4, 0, 1) * 0.24);
+    parts.push(clamp(hfr / 0.34, 0, 1) * 0.22);
+    parts.push(clamp(loud / 0.09, 0, 1) * 0.20);
+    this.vti = parts.length ? Math.round(100 * clamp(parts.reduce((a, b) => a + b, 0) / parts.reduce((a, b) => a + (b ? 1 : 0), 0), 0, 1)) : null;
+    this.q = Math.round(clamp(100 * (0.3 + 0.7 * clamp((this.br ? 1 : 0) * 0.5 + clamp(loud / 0.05, 0, 1) * 0.5, 0, 1)), 0, 100));
+    State.draft.mic = {
+      ok: true, br: this.br, brCv: this.brCv, vti: this.vti, f0: this.f0med,
+      jitter: jit, hfRatio: hfr, loudness: loud, quality: this.q, dur: this.DUR, samples: this.rms.length
+    };
+    setText('#rBr', this.br ? num(this.br, 1) : '—');
+    setText('#rBrCv', this.brCv != null ? num(this.brCv, 0) + '%' : '—');
+    setText('#rVti', this.vti != null ? this.vti : '—');
+    setText('#rMicQ', this.q + '%');
+    $('#modMic').classList.add('done');
+    this.stop(false);
+    Toast('음성·호흡 분석 완료', 'ok', `${this.br ? '호흡 ' + num(this.br, 1) + '/분 · ' : ''}음성 긴장 ${this.vti ?? '—'}`);
+    DB.addEvent(1, `음성·호흡 측정 완료 — 호흡 ${this.br ? num(this.br, 1) : '—'}/분, VTI ${this.vti ?? '—'}`, 'MIC');
+    syncDraft();
+  },
+  async stop(silent) {
+    State.measuring.mic = false;
+    if (this.raf) cancelAnimationFrame(this.raf), this.raf = null;
+    if (this.stream) this.stream.getTracks().forEach(t => t.stop());
+    if (this.ac) { try { await this.ac.close(); } catch (e) {} }
+    this.ac = null; this.stream = null; this.analyser = null;
+    $('#btnMicStart').disabled = false; $('#btnMicStop').disabled = true;
+    $('#modMic').classList.remove('active');
+    if (silent) setText('#micState', '중지됨');
+    await releaseWake();
+  }
+};
+
+/* ---------- 13. 모션 (가속도·자이로) ---------- */
+const Motion = {
+  on: false, acc: [], t0: 0, DUR: 10, raf: null, handler: null, gravity: 9.8,
+  activity: null, agitation: null, stillness: null,
+  async request() {
+    if (typeof DeviceMotionEvent === 'undefined') return false;
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+      try { return (await DeviceMotionEvent.requestPermission()) === 'granted'; }
+      catch (e) { return false; }
+    }
+    return true;
+  },
+  async start() {
+    const ok = await this.request();
+    if (!ok) { Toast('모션 센서를 쓸 수 없습니다', 'warn', 'iOS는 “동작 및 방향 접근” 허용이, 데스크톱은 모바일 기기가 필요합니다.'); return; }
+    this.acc = []; this.t0 = performance.now(); this.gravity = 9.8;
+    this.handler = ev => {
+      const a = ev.acceleration;
+      let mag;
+      if (a && a.x != null) mag = Math.hypot(a.x, a.y, a.z);
+      else if (ev.accelerationIncludingGravity) {
+        const g = ev.accelerationIncludingGravity;
+        const m = Math.hypot(g.x || 0, g.y || 0, g.z || 0);
+        this.gravity = this.gravity * 0.92 + m * 0.08;   // 중력 저역통과 추정
+        mag = Math.abs(m - this.gravity);
+      } else return;
+      this.acc.push({ t: (performance.now() - this.t0) / 1000, v: mag });
+      if (this.acc.length > 4000) this.acc.shift();
+    };
+    window.addEventListener('devicemotion', this.handler, { passive: true });
+    this.on = true;
+    State.measuring.motion = true;
+    $('#btnMotionStart').disabled = true; $('#btnMotionStop').disabled = false;
+    $('#modMotion').classList.add('active');
+    setText('#motionState', '측정 중');
+    await requestWake();
+    const tick = () => {
+      if (!State.measuring.motion) return;
+      const el = (performance.now() - this.t0) / 1000;
+      $('#motionProg').style.width = clamp(el / this.DUR * 100, 0, 100) + '%';
+      paintWave($('#motionWave'), this.acc.slice(-400).map(p => p.v), '#3be8b0', { empty: '센서 데이터 대기…' });
+      setText('#rImuN', this.acc.length);
+      if (this.acc.length) {
+        const vals = this.acc.map(p => p.v);
+        setText('#rAct', num(mean(vals), 2) + ' m/s²');
+      }
+      if (el >= this.DUR) { this.finish(); return; }
+      this.raf = requestAnimationFrame(tick);
+    };
+    this.raf = requestAnimationFrame(tick);
+  },
+  finish() {
+    const vals = this.acc.map(p => p.v);
+    if (vals.length < 20) {
+      Toast('모션 표본이 부족합니다', 'warn', '모바일 기기에서 다시 시도해 주세요.');
+      this.stop(false); return;
+    }
+    const fs = (vals.length - 1) / Math.max(0.5, this.acc[this.acc.length - 1].t - this.acc[0].t);
+    const act = mean(vals);
+    const jerk = [];
+    for (let i = 1; i < vals.length; i++) jerk.push(Math.abs(vals[i] - vals[i - 1]) * fs);
+    const agit = 100 * clamp(mean(jerk) / 12, 0, 1) * 0.6 + 100 * clamp(std(vals) / 1.2, 0, 1) * 0.4;
+    const still = 100 * vals.filter(v => v < 0.12).length / vals.length;
+    this.activity = act; this.agitation = agit; this.stillness = still;
+    State.draft.motion = { ok: true, activity: act, agitation: agit, stillness: still, n: vals.length, fs };
+    setText('#rAct', num(act, 2) + ' m/s²');
+    setText('#rAgit', num(agit, 0));
+    setText('#rStill', num(still, 0) + '%');
+    $('#modMotion').classList.add('done');
+    this.stop(false);
+    Toast('움직임 분석 완료', 'ok', `초조 지수 ${num(agit, 0)} · 안정 비율 ${num(still, 0)}%`);
+    syncDraft();
+  },
+  async stop(silent) {
+    State.measuring.motion = false;
+    if (this.raf) cancelAnimationFrame(this.raf), this.raf = null;
+    if (this.handler) window.removeEventListener('devicemotion', this.handler);
+    this.handler = null; this.on = false;
+    $('#btnMotionStart').disabled = false; $('#btnMotionStop').disabled = true;
+    $('#modMotion').classList.remove('active');
+    if (silent) setText('#motionState', '중지됨');
+    await releaseWake();
+  }
+};
+
+/* ---------- 14. BLE 웨어러블 ---------- */
+const Ble = {
+  device: null, server: null, char: null, rr: [], hr: null, bat: null, handler: null,
+  async connect() {
+    if (!navigator.bluetooth) { Toast('이 브라우저는 Web Bluetooth를 지원하지 않습니다', 'warn', 'Android Chrome·데스크톱 Chrome에서 사용할 수 있습니다.'); return; }
+    try {
+      this.device = await navigator.bluetooth.requestDevice({
+        filters: [{ services: ['heart_rate'] }],
+        optionalServices: ['battery_service', 'device_information']
+      });
+      this.device.addEventListener('gattserverdisconnected', () => {
+        setText('#bleState', '연결 끊김'); Toast('웨어러블 연결이 끊겼습니다', 'warn');
+        $('#btnBleOff').disabled = true;
+      });
+      this.server = await this.device.gatt.connect();
+      const svc = await this.server.getPrimaryService('heart_rate');
+      this.char = await svc.getCharacteristic('heart_rate_measurement');
+      this.handler = e => this.onData(e);
+      this.char.addEventListener('characteristicvaluechanged', this.handler);
+      await this.char.startNotifications();
+      setText('#bleState', '연결됨 · ' + (this.device.name || 'HR 기기'));
+      $('#btnBleOff').disabled = false;
+      $('#modBle').classList.add('active');
+      Toast('웨어러블 연결됨', 'ok', this.device.name || 'Heart Rate 서비스');
+      DB.addEvent(1, `웨어러블 연결 — ${this.device.name || 'HR 기기'}`, 'BLE');
+      try {
+        const bs = await this.server.getPrimaryService('battery_service');
+        const bc = await bs.getCharacteristic('battery_level');
+        const v = await bc.readValue();
+        this.bat = v.getUint8(0);
+        setText('#rBleBat', this.bat + '%');
+      } catch (e) { setText('#rBleBat', '—'); }
+    } catch (e) {
+      if (e.name !== 'NotFoundError') Toast('연결하지 못했습니다', 'warn', e.message);
+    }
+  },
+  onData(e) {
+    const dv = e.target.value;
+    const flags = dv.getUint8(0);
+    const is16 = !!(flags & 0x01);
+    let off = 1;
+    this.hr = is16 ? dv.getUint16(off, true) : dv.getUint8(off);
+    off += is16 ? 2 : 1;
+    if (flags & 0x08) off += 2;                                  // 에너지 소비
+    if (flags & 0x10) {                                          // RR 간격 (1/1024 s)
+      const n = (dv.byteLength - off) / 2;
+      for (let i = 0; i < n; i++) {
+        const v = dv.getUint16(off + i * 2, true);
+        const ms = v / 1024 * 1000;
+        if (ms > 250 && ms < 2200) this.rr.push(ms);
+      }
+      if (this.rr.length > 600) this.rr = this.rr.slice(-600);
+    }
+    setText('#rBleHr', this.hr);
+    setText('#rBleRr', this.rr.length);
+    const h = HRV.fromRR(this.rr.slice(-120));
+    if (h) {
+      setText('#rBleRmssd', num(h.rmssd, 0));
+      State.draft.ble = {
+        ok: true, hr: this.hr, rmssd: h.rmssd, sdnn: h.sdnn, pnn50: h.pnn50, si: h.si,
+        rrN: this.rr.length, source: 'ble', quality: 96, name: this.device && this.device.name
+      };
+      syncDraft();
+    }
+  },
+  async disconnect() {
+    try { if (this.char && this.handler) this.char.removeEventListener('characteristicvaluechanged', this.handler); } catch (e) {}
+    try { if (this.server) this.server.disconnect(); } catch (e) {}
+    this.device = null; this.server = null; this.char = null; this.rr = []; this.hr = null;
+    setText('#bleState', '미연결'); $('#btnBleOff').disabled = true;
+    $('#modBle').classList.remove('active');
+  }
+};
+/* ---------- 15. 융합 엔진 ---------- */
+const SUB = {
+  hrv:  { label: 'HRV (RMSSD)', c1: '#38e1ff', c2: '#0b8fb0', w: 0.28 },
+  hr:   { label: '심박수', c1: '#38e1ff', c2: '#8b5cf6', w: 0.12 },
+  br:   { label: '호흡 리듬', c1: '#8b5cf6', c2: '#ff3d7f', w: 0.14 },
+  vti:  { label: '음성 긴장', c1: '#8b5cf6', c2: '#3be8b0', w: 0.18 },
+  agit: { label: '초조·움직임', c1: '#ffb020', c2: '#ff3d7f', w: 0.10 },
+  subj: { label: '주관 감정', c1: '#ffb020', c2: '#8b5cf6', w: 0.18 }
+};
+const POP_SD = { hr: 9, rmssd: 14, br: 3.2, vti: 18, agit: 22 };
+
+const Fusion = {
+  dev(val, key, invert) {
+    const b = State.baseline && State.baseline[key];
+    const m = b ? b.m : POP[key];
+    const s = b ? b.s : POP_SD[key];
+    if (val == null || !isFinite(val)) return null;
+    let z = (val - m) / Math.max(1e-3, s);
+    if (invert) z = -z;
+    return { z, score: clamp(50 + z * 23, 0, 100), personalized: !!b };
+  },
+  run() {
+    const d = State.draft;
+    const sub = {};
+    const cam = d.cam, ble = d.ble, mic = d.mic, mo = d.motion, self = d.self;
+    const hr = cam && cam.hr ? cam.hr : (ble && ble.hr ? ble.hr : null);
+    const rmssd = (cam && cam.rmssd) || (ble && ble.rmssd) || null;
+    const sdnn = (cam && cam.sdnn) || (ble && ble.sdnn) || null;
+    const si = (cam && cam.si) || (ble && ble.si) || null;
+    const src = (ble && ble.rmssd) ? 'BLE(웨어러블)' : (cam && cam.hr ? '카메라 PPG' : '—');
+    if (hr) sub.hr = this.dev(hr, 'hr', false);
+    if (rmssd) sub.hrv = this.dev(rmssd, 'rmssd', true);
+    if (mic && mic.br) sub.br = this.dev(mic.br, 'br', false);
+    if (mic && mic.vti != null) sub.vti = this.dev(mic.vti, 'vti', false);
+    if (mo && mo.agitation != null) sub.agit = this.dev(mo.agitation, 'agit', false);
+    if (self && self.score != null) sub.subj = { z: (self.score - 50) / 18, score: self.score, personalized: false };
+
+    const present = Object.keys(sub).filter(k => sub[k]);
+    let wsum = 0, acc = 0;
+    present.forEach(k => { const w = SUB[k].w; wsum += w; acc += sub[k].score * w; });
+    const risk = wsum > 0 ? acc / wsum : null;
+    const qualities = [];
+    if (cam && cam.quality) qualities.push(cam.quality);
+    if (mic && mic.quality) qualities.push(mic.quality);
+    if (ble) qualities.push(96);
+    if (mo) qualities.push(78);
+    const qAvg = qualities.length ? mean(qualities) : 0;
+    const conf = Math.round(clamp(qAvg * (0.45 + 0.55 * clamp(present.length / 4, 0, 1)), 0, 100));
+    const lv = risk != null ? levelOf(risk) : RISK_LEVELS[0];
+    // 자가 보고 vs 생체 신호 불일치
+    let mismatch = null;
+    const bioKeys = present.filter(k => k !== 'subj');
+    if (sub.subj && bioKeys.length >= 2) {
+      const bioAvg = mean(bioKeys.map(k => sub[k].score));
+      const diff = bioAvg - sub.subj.score;
+      if (diff > 22) mismatch = { kind: 'hidden', text: '자가 보고보다 생체 신호가 더 나쁩니다 — 본인이 자각하지 못하는 긴장이 쌓여 있을 수 있습니다.', diff };
+      else if (diff < -22) mismatch = { kind: 'felt', text: '생체 신호는 안정적인데 주관적 고통이 큽니다. 수치와 무관하게 그 고통 자체가 돌봄의 대상입니다.', diff };
+    }
+    const out = {
+      ts: Date.now(), risk: risk == null ? null : Math.round(risk), conf, level: lv, sub, present,
+      hr, rmssd, sdnn, si, br: mic ? mic.br : null, brCv: mic ? mic.brCv : null, vti: mic ? mic.vti : null,
+      agit: mo ? mo.agitation : null, stillness: mo ? mo.stillness : null, subj: self ? self.score : null,
+      quality: Math.round(qAvg), mismatch, source: src,
+      lfhf: cam && cam.lfhf != null ? cam.lfhf : null,
+      note: (cam && cam.rrN ? 'RR ' + cam.rrN + '개' : '') + (mic && mic.br ? (cam && cam.rrN ? ' · ' : '') + '호흡 ' + num(mic.br, 1) + '/분' : '')
+    };
+    State.fusion = out;
+    if (out.risk != null) { State.risk = out.risk; State.ambientChaos = clamp(out.risk / 100, 0.1, 0.95); }
+    State.last = Object.assign({}, out, { id: 'S' + Date.now(), measured: true });
+    return out;
+  }
+};
+
+/* ---------- 16. 세션 저장 / 동기화 ---------- */
+function syncDraft() {
+  const n = State.completed();
+  setText('#navMeasure', n + '/5');
+  const map = { cam: '#rHr', mic: '#rBr', motion: '#rAct', ble: '#rBleHr', self: '#selfState' };
+  Object.keys(State.draft).forEach(k => { const el = $('#mod' + k.charAt(0).toUpperCase() + k.slice(1)); if (el && State.draft[k]) el.classList.add('done'); });
+  if (n >= 3) setText('#fuseState', '융합 준비됨');
+}
+function saveSession(s) {
+  DB.addSession(s);
+  State.baseline = Baseline.compute(DB.data.sessions);
+  if (s.risk != null) {
+    const lv = levelOf(s.risk);
+    DB.addEvent(lv.id, `세션 기록 — 위험 ${s.risk} (${lv.name}), 신뢰도 ${s.conf}%`, 'SESSION');
+    if (lv.id >= 2) escalateWatch(s);
+  }
+  renderAll();
+}
+
+/* ---------- 17. 호흡 가이드 (Step 1) ---------- */
+const Breath = {
+  phases: [{ k: 'inhale', label: '들이마시기', sec: 4 }, { k: 'hold', label: '멈추기', sec: 7 }, { k: 'exhale', label: '내쉬기', sec: 8 }],
+  running: false, pi: 0, t0: 0, raf: null, cycles: 0, TOTAL: 4, matches: 0, checks: 0,
+  micAC: null, micStream: null, micAn: null, micBuf: null, micRaf: null, prevRms: 0, detected: '—',
+  async start(fromCrisis) {
+    if (this.running) return;
+    this.running = true; this.pi = 0; this.cycles = 0; this.matches = 0; this.checks = 0; this.t0 = performance.now();
+    $('#crisis').classList.add('open');
+    setText('#protoBadge', 'Step 1 진행 중');
+    if ($('#swVoice').checked) speak('지금부터 호흡을 함께 하겠습니다. 원을 따라와 주세요.');
+    if ($('#swMicSync').checked) await this.micOn();
+    DB.addEvent(2, 'Step 1 개입 시작 — 호흡 가이드', 'STEP1');
+    this.tick();
+  },
+  tick() {
+    const now = performance.now();
+    const el = (now - this.t0) / 1000;
+    let acc = 0, cur = null;
+    for (const p of this.phases) {
+      if (el < acc + p.sec) { cur = { p, local: el - acc }; break; }
+      acc += p.sec;
+    }
+    const total = this.phases.reduce((s, p) => s + p.sec, 0);
+    if (!cur) {
+      this.cycles++;
+      if (this.cycles >= this.TOTAL) { this.finish(); return; }
+      this.t0 = now;
+      setText('#breathCycle', (this.cycles + 1) + ' / ' + this.TOTAL);
+      this.tick(); return;
+    }
+    const frac = cur.p.k === 'inhale' ? cur.local / cur.p.sec : cur.p.k === 'exhale' ? 1 - cur.local / cur.p.sec : 1;
+    const remain = Math.ceil(cur.p.sec - cur.local);
+    Chart.breath($('#breathCanvas'), cur.p.k, frac);
+    setText('#breathPhase', cur.p.label);
+    setText('#breathCount', remain);
+    setText('#brCycle', (this.cycles + 1) + '/' + this.TOTAL);
+    setText('#breathCycle', (this.cycles + 1) + ' / ' + this.TOTAL);
+    // 위상 전환 시 음성 + 톤
+    if (this.lastPhase !== cur.p.k) {
+      this.lastPhase = cur.p.k;
+      if ($('#swVoice').checked) {
+        const msg = cur.p.k === 'inhale' ? '들이마시세요' : cur.p.k === 'hold' ? '멈추세요' : '천천히 내쉬세요';
+        speak(msg, { rate: 1 });
+      }
+      tone(cur.p.k === 'inhale' ? 528 : cur.p.k === 'hold' ? 396 : 320, 0.35, 0.06);
+      if (navigator.vibrate) navigator.vibrate(cur.p.k === 'exhale' ? 60 : 30);
+    }
+    this.raf = requestAnimationFrame(() => this.tick());
+  },
+  async micOn() {
+    try {
+      this.micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false } });
+      const AC = window.AudioContext || window.webkitAudioContext;
+      this.micAC = new AC();
+      const src = this.micAC.createMediaStreamSource(this.micStream);
+      this.micAn = this.micAC.createAnalyser();
+      this.micAn.fftSize = 1024;
+      src.connect(this.micAn);
+      this.micBuf = new Float32Array(this.micAn.fftSize);
+      const loop = () => {
+        if (!this.running) return;
+        this.micAn.getFloatTimeDomainData(this.micBuf);
+        let s = 0; for (let i = 0; i < this.micBuf.length; i++) s += this.micBuf[i] * this.micBuf[i];
+        const rms = Math.sqrt(s / this.micBuf.length);
+        const d = rms - this.prevRms;
+        this.detected = d > 0.004 ? 'inhale' : d < -0.004 ? 'exhale' : 'hold';
+        this.prevRms = this.prevRms * 0.7 + rms * 0.3;
+        const target = this.phases[this.pi] ? this.phases[this.pi].k : 'inhale';
+        const phaseNow = this.currentPhase();
+        this.checks++;
+        if (this.detected === phaseNow) this.matches++;
+        const pct = this.checks ? Math.round(100 * this.matches / this.checks) : 0;
+        setText('#brDetect', this.detected === 'inhale' ? '들숨' : this.detected === 'exhale' ? '날숨' : '정지');
+        setText('#brSync', pct + '%');
+        setText('#crisisDetect', this.detected === 'inhale' ? '들숨' : this.detected === 'exhale' ? '날숨' : '정지');
+        setText('#crisisSync', pct + '%');
+        this.micRaf = requestAnimationFrame(loop);
+      };
+      loop();
+    } catch (e) {
+      Toast('마이크 호흡 동기를 켤 수 없습니다', 'warn', '음성 가이드만으로 진행합니다.');
+      $('#swMicSync').checked = false;
+    }
+  },
+  currentPhase() {
+    const el = (performance.now() - this.t0) / 1000;
+    let acc = 0;
+    for (const p of this.phases) { if (el < acc + p.sec) return p.k; acc += p.sec; }
+    return 'inhale';
+  },
+  async micOff() {
+    if (this.micRaf) cancelAnimationFrame(this.micRaf), this.micRaf = null;
+    if (this.micStream) this.micStream.getTracks().forEach(t => t.stop());
+    if (this.micAC) { try { await this.micAC.close(); } catch (e) {} }
+    this.micStream = null; this.micAC = null; this.micAn = null;
+  },
+  async finish() {
+    this.running = false;
+    if (this.raf) cancelAnimationFrame(this.raf), this.raf = null;
+    const sync = this.checks ? Math.round(100 * this.matches / this.checks) : null;
+    setText('#protoBadge', 'Step 1 완료');
+    speak('수고하셨습니다. 잠시 후 상태를 다시 확인하겠습니다.');
+    await this.micOff();
+    // 가이드 후 추정: HRV 개선 가정 없이 실제 재측정을 유도
+    const before = State.risk;
+    setText('#brAfter', '재측정 필요');
+    DB.addEvent(0, `Step 1 완료 — 호흡 ${this.TOTAL}주기, 동기 준수율 ${sync == null ? '측정 안 함' : sync + '%'}`, 'STEP1');
+    $('#crisis').classList.remove('open');
+    Toast('호흡 가이드 완료', 'ok', '60초 뒤 다시 측정해 변화를 확인하세요. 상태가 나아지지 않았다면 관제센터 연결을 실행하세요.');
+    if (before != null && before >= 75) {
+      Toast('위험이 여전히 높습니다', 'danger', 'Step 2 관제센터 연결을 권합니다.');
+    }
+    renderAll();
+  },
+  stop() {
+    this.running = false;
+    if (this.raf) cancelAnimationFrame(this.raf), this.raf = null;
+    this.micOff();
+    $('#crisis').classList.remove('open');
+    setText('#protoBadge', '중단됨');
+  }
+};
+
+/* ---------- 18. 음성 합성 / 톤 ---------- */
+function speak(text, opts = {}) {
+  if (!window.speechSynthesis) return;
+  try {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ko-KR'; u.rate = opts.rate || 0.96; u.pitch = 1; u.volume = 1;
+    const vs = speechSynthesis.getVoices() || [];
+    const ko = vs.find(v => (v.lang || '').toLowerCase().startsWith('ko'));
+    if (ko) u.voice = ko;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  } catch (e) { /* 무시 */ }
+}
+let ToneAC = null;
+function tone(freq, dur, when = 0, vol = 0.16) {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    ToneAC = ToneAC || new AC();
+    if (ToneAC.state === 'suspended') ToneAC.resume();
+    const t = ToneAC.currentTime + when;
+    const o = ToneAC.createOscillator(), g = ToneAC.createGain();
+    o.type = 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+    o.connect(g).connect(ToneAC.destination);
+    o.start(t); o.stop(t + dur + 0.05);
+  } catch (e) { /* 무음 환경 허용 */ }
+}
+
+/* ---------- 19. 문진 챗봇 ---------- */
+const Triage = {
+  step: 0, answers: [], started: false, urgent: false,
+  qs: [
+    { q: '지금 가장 힘든 것은 무엇인가요?', opts: ['잠을 못 자요', '불안하고 초조해요', '아무것도 하기 싫어요', '사람 만나는 게 힘들어요', '잘 모르겠어요'], key: 'chief' },
+    { q: '지금 이 순간, 스스로를 해치고 싶은 생각이 있나요?', opts: ['전혀 없어요', '가끔 스쳐 지나가요', '자주 떠올라요', '지금 있습니다'], key: 'risk' },
+    { q: '최근 잠은 어땠나요?', opts: ['잘 잤어요', '자주 깼어요', '거의 못 잤어요'], key: 'sleep' },
+    { q: '식사와 활동은 평소와 비슷한가요?', opts: ['평소와 같아요', '줄었어요', '거의 못 하고 있어요'], key: 'function' },
+    { q: '지금 곁에 도움을 줄 사람이 있나요?', opts: ['곁에 있어요', '연락하면 와요', '혼자예요'], key: 'support' }
+  ],
+  start() {
+    if (this.started) return;
+    this.started = true; this.step = 0; this.answers = []; this.urgent = false;
+    $('#chat').innerHTML = '';
+    this.bot('안녕하세요. 정신건강 전담 문진입니다. 5개 질문에 짧게 답해 주시면, 지금 필요한 도움의 수준을 함께 판단하겠습니다.');
+    this.ask();
+  },
+  bot(text) {
+    const el = document.createElement('div');
+    el.className = 'msg bot';
+    el.innerHTML = `<span class="who">관제센터 챗봇</span>${text}`;
+    $('#chat').appendChild(el);
+    $('#chat').scrollTop = 1e6;
+  },
+  me(text) {
+    const el = document.createElement('div');
+    el.className = 'msg me';
+    el.innerHTML = `<span class="who">나</span>${text}`;
+    $('#chat').appendChild(el);
+    $('#chat').scrollTop = 1e6;
+  },
+  ask() {
+    const cur = this.qs[this.step];
+    if (!cur) { this.evaluate(); return; }
+    this.bot(`<b>${this.step + 1}. ${cur.q}</b>`);
+    $('#chatQuick').innerHTML = cur.opts.map(o => `<button data-a="${o}">${o}</button>`).join('');
+  },
+  answer(text) {
+    const cur = this.qs[this.step];
+    if (!cur) return;
+    this.me(text);
+    this.answers.push({ key: cur.key, v: text });
+    if (cur.key === 'risk' && (text === '자주 떠올라요' || text === '지금 있습니다')) {
+      this.urgent = true;
+      this.bot('말해 주셔서 감사합니다. <b>지금 바로 사람과 연결</b>하는 것이 가장 중요합니다. 아래 긴급 연락에서 109 또는 119로 전화하시고, 필요하면 관제센터 연결을 실행해 주세요.');
+    }
+    this.step++;
+    $('#chatQuick').innerHTML = '';
+    setTimeout(() => this.ask(), 320);
+  },
+  evaluate() {
+    let score = 0;
+    this.answers.forEach(a => {
+      if (a.key === 'risk') score += a.v === '지금 있습니다' ? 5 : a.v === '자주 떠올라요' ? 4 : a.v === '가끔 스쳐 지나가요' ? 2 : 0;
+      if (a.key === 'sleep') score += a.v === '거의 못 잤어요' ? 2 : a.v === '자주 깼어요' ? 1 : 0;
+      if (a.key === 'function') score += a.v === '거의 못 하고 있어요' ? 2 : a.v === '줄었어요' ? 1 : 0;
+      if (a.key === 'support') score += a.v === '혼자예요' ? 1 : 0;
+    });
+    const tier = score >= 5 ? 3 : score >= 3 ? 2 : score >= 1 ? 1 : 0;
+    const msg = [
+      '지금은 스스로 안정할 수 있는 수준으로 보입니다. 오늘 기록을 남기고, 3일간 수면과 활동 데이터를 함께 지켜보겠습니다.',
+      '상담 예약을 권합니다. 48시간 안에 전문 상담사가 전화드리는 일정을 제안드릴 수 있습니다.',
+      '우선순위 상담 대상으로 분류했습니다. 24시간 내 담당 의료진이 연락드리고, 보호자 동의 시 함께 안내드립니다.',
+      '긴급 분류입니다. 지금 바로 109로 전화하시고, 곁에 사람을 부탁하세요. 관제센터에서도 즉시 연결을 시도합니다.'
+    ][tier];
+    this.bot(`<b>분류 결과: ${['자가 관리', '상담 예약', '우선순위 상담', '긴급 연결'][tier]}</b><br>${msg}`);
+    setText('#triageBadge', ['자가 관리', '상담 예약', '우선순위', '긴급'][tier]);
+    DB.addEvent(tier >= 2 ? 3 : tier === 1 ? 2 : 0, `문진 결과 — ${['자가 관리', '상담 예약', '우선순위 상담', '긴급 연결'][tier]} (점수 ${score})`, 'TRIAGE');
+    if (tier >= 3) {
+      if (navigator.vibrate) navigator.vibrate([300, 120, 300, 120, 600]);
+      Toast('긴급 분류', 'danger', '109 또는 119로 바로 연결하세요. 관제센터 연결 버튼을 누르면 담당자에게 요약이 전송됩니다.');
+      speak('지금 바로 사람과 연결하는 것이 가장 중요합니다. 백구로 전화해 주세요.');
+    }
+    renderAll();
+  }
+};
+
+/* ---------- 20. 암호화 & 에스컬레이션 (Step 2) ---------- */
+async function deviceKey() {
+  let k = DB.data.settings.deviceKey;
+  if (!k) {
+    const b = crypto.getRandomValues(new Uint8Array(24));
+    k = hex(b);
+    DB.data.settings.deviceKey = k; DB.save();
+  }
+  return k;
+}
+async function encryptBundle(obj) {
+  const enc = new TextEncoder();
+  const plain = enc.encode(JSON.stringify(obj));
+  const pass = await deviceKey();
+  const km = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']);
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const key = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: 120000, hash: 'SHA-256' },
+    km, { name: 'AES-GCM', length: 256 }, false, ['encrypt']
+  );
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plain);
+  const digest = await crypto.subtle.digest('SHA-256', ct);
+  return { ct: new Uint8Array(ct), iv, salt, digest: new Uint8Array(digest), size: plain.length };
+}
+function escLine(txt, cls = '') {
+  const el = document.createElement('div');
+  el.className = 'log-row ' + cls;
+  el.innerHTML = `<time>${clockT()}</time><span class="txt">${txt}</span>`;
+  $('#escLog').prepend(el);
+}
+const Escalate = {
+  async run(reason) {
+    const consent = DB.data.consents.share;
+    if (!consent) {
+      Toast('공유 동의가 필요합니다', 'warn', '설정에서 “위기 시 의료기관·보호자 공유”에 동의하면 실행할 수 있습니다. 지금은 긴급 연락처로 직접 연결하세요.');
+      openConsent();
+      return;
+    }
+    $('#protoBadge').textContent = 'Step 2 진행 중';
+    escLine('<b>에스컬레이션 시작</b> — ' + (reason || '사용자 요청'));
+    const bundle = {
+      v: 1, ts: Date.now(), device: (navigator.userAgent || '').slice(0, 80),
+      risk: State.risk, level: State.fusion ? State.fusion.level.name : null,
+      conf: State.fusion ? State.fusion.conf : null,
+      vitals: {
+        hr: State.last ? State.last.hr : null, rmssd: State.last ? State.last.rmssd : null,
+        br: State.last ? State.last.br : null, vti: State.last ? State.last.vti : null,
+        agit: State.last ? State.last.agit : null
+      },
+      baseline: State.baseline ? { n: State.baseline.n, rmssd: State.baseline.rmssd } : null,
+      recent: DB.data.sessions.slice(-12).map(s => ({ ts: s.ts, risk: s.risk, hr: s.hr, rmssd: s.rmssd })),
+      triage: Triage.answers, geo: State.geo,
+      note: 'Emotion Watch 프로토타입 자동 전송'
+    };
+    escLine('번들 구성 — 세션 ' + bundle.recent.length + '건 · 위험 ' + (bundle.risk ?? '—'));
+    await new Promise(r => setTimeout(r, 260));
+    let enc = null;
+    try {
+      enc = await encryptBundle(bundle);
+      escLine('AES-256-GCM 암호화 완료 — 평문 ' + enc.size + 'B → 암호문 ' + enc.ct.length + 'B');
+      escLine('SHA-256 지문 <span class="mono">' + hex(enc.digest).slice(0, 32) + '…</span>');
+      $('#e2eBadge').textContent = '암호문 ' + enc.ct.length + 'B';
+    } catch (e) {
+      escLine('암호화 실패 — ' + (e.message || e.name));
+      Toast('암호화에 실패했습니다', 'warn', 'HTTPS 환경에서 다시 시도해 주세요.');
+      return;
+    }
+    await new Promise(r => setTimeout(r, 300));
+    escLine('관제센터 수신 — 담당 의료진 대기열 등록 (시뮬레이션)');
+    await new Promise(r => setTimeout(r, 260));
+    escLine('문진 요약 첨부 — ' + (Triage.answers.length ? Triage.answers.length + '개 응답' : '미완료'));
+    if (State.geo) escLine('위치 첨부 — ' + State.geo.lat.toFixed(3) + ', ' + State.geo.lon.toFixed(3) + ' (±' + Math.round(State.geo.acc) + 'm)');
+    escLine('보호자 동시 통보 (시뮬레이션)');
+    DB.addEvent(3, 'Step 2 에스컬레이션 실행 — 암호화 전송 ' + enc.ct.length + 'B', 'STEP2');
+    notify('Emotion Watch 위기 알림', '위험 지수 ' + (State.risk ?? '—') + ' · 담당자 연결이 요청되었습니다.');
+    if (navigator.vibrate) navigator.vibrate([400, 150, 400]);
+    $('#protoBadge').textContent = 'Step 2 전송 완료';
+    Toast('관제센터 연결 요청을 보냈습니다', 'danger', '곁에 사람이 있다면 함께 있어 달라고 말해 주세요. 급박하면 109 · 119로 직접 전화하세요.');
+    renderAll();
+  }
+};
+function notify(title, body) {
+  try {
+    if (typeof Notification === 'undefined') return;
+    if (Notification.permission === 'granted') new Notification(title, { body });
+  } catch (e) { /* 모바일에서는 서비스워커가 필요할 수 있음 */ }
+}
+async function escalateWatch(s) {
+  DB.addEvent(2, '임계값 초과 감지 — Step 1 개입 권고', 'WATCH');
+  if (!Breath.running && State.view !== 'intervene') {
+    Toast('경계 수준 도달', 'warn', '30초 호흡 가이드를 시작할 수 있습니다. 개입 탭에서 실행하세요.');
+    if (navigator.vibrate) navigator.vibrate([200, 90, 200]);
+  }
+}
+
+/* ---------- 21. 리포트 ---------- */
+function renderReport(rangeDays) {
+  const all = DB.data.sessions.slice().sort((a, b) => a.ts - b.ts);
+  const from = rangeDays ? Date.now() - rangeDays * 86400000 : 0;
+  const rows = all.filter(s => s.ts >= from);
+  const withRisk = rows.filter(s => s.risk != null);
+  setText('#reportTitle', rows.length ? `${rows.length}개 세션 · ${dayKey(new Date(from || (rows[0] && rows[0].ts) || Date.now()))} ~ 오늘` : '기록된 세션이 없습니다');
+  setText('#sessBadge', rows.length + '건');
+  const avg = withRisk.length ? mean(withRisk.map(s => s.risk)) : null;
+  const max = withRisk.length ? Math.max(...withRisk.map(s => s.risk)) : null;
+  const breach = withRisk.filter(s => s.risk >= 55).length;
+  const tiles = [
+    ['세션 수', rows.length, '회'],
+    ['평균 위험', avg == null ? '—' : Math.round(avg), '/100'],
+    ['최고 위험', max == null ? '—' : Math.round(max), '/100'],
+    ['경계 이상', breach, '회']
+  ];
+  $('#reportTiles').innerHTML = tiles.map(([l, v, u]) =>
+    `<div class="tile"><small>${l}</small><b>${v}<i>${u}</i></b></div>`).join('');
+  const tb = $('#sessTbl');
+  tb.innerHTML = `<thead><tr><th>시각</th><th>위험</th><th>등급</th><th>심박</th><th>RMSSD</th><th>호흡</th><th>VTI</th><th>초조</th><th>신뢰도</th></tr></thead><tbody>` +
+    rows.slice(-40).reverse().map(s => {
+      const lv = s.risk != null ? levelOf(s.risk) : null;
+      const d = new Date(s.ts);
+      return `<tr><td class="num">${dayKey(d).slice(5)} ${pad2(d.getHours())}:${pad2(d.getMinutes())}</td>` +
+        `<td class="num">${s.risk ?? '—'}</td>` +
+        `<td style="color:${lv ? lv.color : 'inherit'}">${lv ? lv.name : '—'}</td>` +
+        `<td class="num">${s.hr ? Math.round(s.hr) : '—'}</td>` +
+        `<td class="num">${s.rmssd ? Math.round(s.rmssd) : '—'}</td>` +
+        `<td class="num">${s.br ? num(s.br, 1) : '—'}</td>` +
+        `<td class="num">${s.vti ?? '—'}</td>` +
+        `<td class="num">${s.agit != null ? Math.round(s.agit) : '—'}</td>` +
+        `<td class="num">${s.conf ?? '—'}%</td></tr>`;
+    }).join('') + '</tbody>';
+  return rows;
+}
+function download(name, text, type) {
+  const blob = new Blob([text], { type: type || 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+}
+/* ---------- 22. 화면 유지 / 알림 ---------- */
+async function requestWake() {
+  try {
+    if (navigator.wakeLock && !State.wakeLock) State.wakeLock = await navigator.wakeLock.request('screen');
+  } catch (e) { /* 미지원 허용 */ }
+}
+async function releaseWake() {
+  try { if (State.wakeLock) { await State.wakeLock.release(); State.wakeLock = null; } } catch (e) {}
+}
+function setRoi(mode) {
+  const roi = $('#camRoi');
+  if (!roi) return;
+  roi.style.cssText = mode === 'face'
+    ? 'left:26%;top:16%;width:48%;height:56%'
+    : 'left:31%;top:28%;width:38%;height:34%';
+}
+
+/* ---------- 23. 자가 체크 / 우울증 6축 ---------- */
+const SELF_AXES = [
+  { k: 'tension', label: '긴장', lo: '이완', hi: '팽팽함' },
+  { k: 'anxiety', label: '불안', lo: '평온', hi: '초조' },
+  { k: 'apathy', label: '무기력', lo: '의욕 있음', hi: '아무것도 못 함' },
+  { k: 'sleepy', label: '수면 부족', lo: '충분', hi: '못 잠' },
+  { k: 'body', label: '몸 불편', lo: '편안', hi: '힘듦' }
+];
+const DEP_ITEMS = [
+  ['수면 리듬 붕괴', '잠들기 어렵고 자주 깨며, 아침에 일어나기 힘들다'],
+  ['무쾌감', '좋아하던 일이 더 이상 즐겁지 않다'],
+  ['불안·초조', '이유 없이 초조하고 안절부절 못한다'],
+  ['집중 저하', '일이나 대화에 집중이 잘 되지 않는다'],
+  ['식욕·체중 변화', '식욕이 뚜렷하게 줄거나 늘었다'],
+  ['활동량 저하', '몸을 움직이지 않게 되고 대부분 누워 지낸다']
+];
+function renderSelf() {
+  const wrap = $('#selfSliders');
+  if (!wrap || wrap.dataset.built) return;
+  wrap.dataset.built = '1';
+  wrap.innerHTML = SELF_AXES.map(a => `
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-dim)">
+        <span>${a.label}</span><span class="mono" id="sv_${a.k}">50</span>
+      </div>
+      <input type="range" min="0" max="100" value="50" id="sl_${a.k}" style="width:100%;accent-color:#38e1ff">
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-faint)"><span>${a.lo}</span><span>${a.hi}</span></div>
+    </div>`).join('');
+  SELF_AXES.forEach(a => {
+    const inp = $('#sl_' + a.k);
+    inp.addEventListener('input', () => {
+      setText('#sv_' + a.k, inp.value);
+      const score = Math.round(mean(SELF_AXES.map(x => +$('#sl_' + x.k).value)));
+      State.draft.self = { ok: true, score, axes: SELF_AXES.map(x => ({ k: x.k, v: +$('#sl_' + x.k).value })), quality: 70 };
+      setText('#selfState', score + '/100');
+      $('#modSelf').classList.add('done');
+      syncDraft();
+    });
+  });
+}
+function renderDep() {
+  const wrap = $('#depList');
+  if (!wrap || wrap.dataset.built) return;
+  wrap.dataset.built = '1';
+  wrap.innerHTML = DEP_ITEMS.map((d, i) => `
+    <label><input type="checkbox" data-i="${i}"><span>${d[0]}<em>${d[1]}</em></span></label>`).join('');
+  const saved = DB.data.settings.dep || [];
+  $$('#depList input').forEach(inp => {
+    inp.checked = !!saved[+inp.dataset.i];
+    inp.addEventListener('change', () => {
+      const arr = $$('#depList input').map(x => x.checked);
+      DB.data.settings.dep = arr; DB.save();
+      const n = arr.filter(Boolean).length;
+      setText('#depBadge', n + ' / 6');
+      $('#depBadge').className = 'badge' + (n >= 3 ? ' danger' : n >= 1 ? ' warn' : '');
+      if (n >= 3) Toast('3개 이상 해당됩니다', 'warn', '선별 보조 기준으로 전문가 상담을 권합니다. 이 결과는 진단이 아닙니다.');
+    });
+  });
+  const n = saved.filter(Boolean).length;
+  setText('#depBadge', n + ' / 6');
+  $('#depBadge').className = 'badge' + (n >= 3 ? ' danger' : n >= 1 ? ' warn' : '');
+}
+
+/* ---------- 24. 수면 / 동의 모달 ---------- */
+function openSleep() {
+  const s = DB.data.sleep.slice(-1)[0] || { start: 23.5, end: 7, quality: 3, latency: 30 };
+  openModal('서카디안', '수면 기록 입력', `
+    <div class="grid g2">
+      <div><label class="hint">취침 시각 (24시간, 예: 23.5 = 23:30)</label>
+        <input id="slStart" type="number" step="0.5" min="0" max="24" value="${s.start}" class="mono" style="width:100%;background:rgba(4,6,12,.6);border:1px solid var(--line);border-radius:9px;padding:9px"></div>
+      <div><label class="hint">기상 시각</label>
+        <input id="slEnd" type="number" step="0.5" min="0" max="24" value="${s.end}" class="mono" style="width:100%;background:rgba(4,6,12,.6);border:1px solid var(--line);border-radius:9px;padding:9px"></div>
+      <div><label class="hint">입면까지 걸린 시간 (분)</label>
+        <input id="slLat" type="number" step="5" min="0" max="300" value="${s.latency}" class="mono" style="width:100%;background:rgba(4,6,12,.6);border:1px solid var(--line);border-radius:9px;padding:9px"></div>
+      <div><label class="hint">수면의 질 (1~5)</label>
+        <input id="slQ" type="number" step="1" min="1" max="5" value="${s.quality}" class="mono" style="width:100%;background:rgba(4,6,12,.6);border:1px solid var(--line);border-radius:9px;padding:9px"></div>
+    </div>
+    <p class="hint" style="margin-top:12px">취침·기상 시각의 중간점(midpoint)이 날마다 크게 흔들리면 서카디안 붕괴 위험으로 계산합니다. 실제 멜라토닌 측정을 대체하지 않는 근사치입니다.</p>
+    <div class="btn-row" style="margin-top:14px"><button class="btn primary" id="slSave">저장</button></div>
+  `);
+  $('#slSave').onclick = () => {
+    const rec = {
+      ts: Date.now(), start: +$('#slStart').value, end: +$('#slEnd').value,
+      latency: +$('#slLat').value, quality: +$('#slQ').value
+    };
+    DB.data.sleep.push(rec); if (DB.data.sleep.length > 60) DB.data.sleep.shift();
+    // 리듬 불규칙성: 최근 기록의 중간점 표준편차
+    const mids = DB.data.sleep.slice(-7).map(x => { let m = (x.start + (x.end < x.start ? x.end + 24 : x.end)) / 2; return m % 24; });
+    rec.irregularity = mids.length >= 3 ? clamp(std(mids) / 1.8, 0, 1) : null;
+    State.sleep = rec; DB.save(); closeModal();
+    Toast('수면 기록 저장', 'ok', '서카디안 차트에 반영했습니다.');
+    renderAll();
+  };
+}
+function openConsent() {
+  const c = DB.data.consents;
+  openModal('동의·설정', '민감정보 처리 동의', `
+    <div class="check" id="consentList">
+      <label><input type="checkbox" data-c="local" ${c.local ? 'checked' : ''}><span>기기 내 저장<em>측정 파생 수치를 이 브라우저에 저장합니다. 원본 영상·음성은 저장하지 않습니다.</em></span></label>
+      <label><input type="checkbox" data-c="notify" ${c.notify ? 'checked' : ''}><span>알림 수신<em>위험 임계값 초과 시 화면 팝업과 진동 알림을 받습니다.</em></span></label>
+      <label><input type="checkbox" data-c="share" ${c.share ? 'checked' : ''}><span>위기 시 의료기관·보호자 공유<em>에스컬레이션을 실행할 때만, AES-256-GCM 암호화된 요약을 전송합니다.</em></span></label>
+      <label><input type="checkbox" data-c="geo" ${c.geo ? 'checked' : ''}><span>위치 첨부<em>긴급 상황에서 구조 지연을 줄이기 위해 위치를 함께 보냅니다.</em></span></label>
+    </div>
+    <div class="legal" style="margin-top:14px"><b>이 앱은 의료기기가 아닙니다</b>진단·치료를 목적으로 하지 않으며, 식약처 SaMD 인허가를 받지 않은 프로토타입입니다. 급박한 위험에서는 109 · 119를 먼저 이용하세요.</div>
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn primary" id="consentSave">동의 저장</button>
+      <button class="btn ghost" id="consentClose">닫기</button>
+    </div>
+  `);
+  $('#consentSave').onclick = () => {
+    $$('#consentList input').forEach(i => { DB.data.consents[i.dataset.c] = i.checked; });
+    DB.save(); closeModal();
+    Toast('동의 설정을 저장했습니다', 'ok');
+  };
+  $('#consentClose').onclick = closeModal;
+}
+
+/* ---------- 25. 예측 / 지표 계산 ---------- */
+function forecastRisk(rows) {
+  const r = rows.filter(s => s.risk != null).slice(-10);
+  if (r.length < 4) return null;
+  const t0 = r[0].ts;
+  const xs = r.map(s => (s.ts - t0) / 3600000), ys = r.map(s => s.risk);
+  const n = r.length;
+  const sx = xs.reduce((a, b) => a + b, 0), sy = ys.reduce((a, b) => a + b, 0);
+  const sxx = xs.reduce((a, b) => a + b * b, 0), sxy = xs.reduce((a, b, i) => a + b * ys[i], 0);
+  const den = n * sxx - sx * sx;
+  if (!den) return null;
+  const b = (n * sxy - sx * sy) / den, a = (sy - b * sx) / n;
+  const xNow = (Date.now() - t0) / 3600000;
+  const pred = clamp(a + b * (xNow + 6), 0, 100);
+  return { slope: b, pred, n };
+}
+function briefText(f) {
+  if (!f || f.risk == null) return { t: '측정을 시작하면 요약이 만들어집니다', b: '카메라·마이크·모션 센서로 3분이면 오늘의 자율신경 상태를 읽습니다.' };
+  const lv = f.level;
+  const bits = [];
+  if (f.rmssd != null) bits.push(`HRV(RMSSD) ${Math.round(f.rmssd)}ms`);
+  if (f.hr) bits.push(`심박 ${Math.round(f.hr)}bpm`);
+  if (f.br) bits.push(`호흡 ${num(f.br, 1)}/분`);
+  if (f.vti != null) bits.push(`음성 긴장 ${f.vti}`);
+  const head = lv.id === 0 ? '자율신경이 안정 범위에 있습니다'
+    : lv.id === 1 ? '기준선보다 약간 긴장한 상태입니다'
+      : lv.id === 2 ? '자율신경 균형이 흔들리고 있습니다'
+        : '위험 수준입니다 — 지금 개입이 필요합니다';
+  let body = `${bits.join(' · ')}. 신뢰도 ${f.conf}%. `;
+  if (f.mismatch) body += f.mismatch.text + ' ';
+  body += lv.id === 0 ? '오늘은 지금 리듬을 유지하는 것이 목표입니다.'
+    : lv.id === 1 ? '물 한 잔과 5분 걷기로 충분히 되돌릴 수 있는 구간입니다.'
+      : lv.id === 2 ? '30초 호흡 가이드를 먼저 실행하고, 60초 뒤 다시 측정해 주세요.'
+        : '호흡 가이드를 건너뛰고 바로 관제센터 연결을 권합니다.';
+  return { t: head, b: body };
+}
+function recommendation(f) {
+  if (!f || f.risk == null) return { t: '측정 데이터 없음', b: '3분 측정 후 개인 기준선 대비 편차를 계산해 권고를 만듭니다.', action: '측정 시작', view: 'measure' };
+  const lv = f.level;
+  if (lv.id >= 3) return { t: 'Step 2 · 관제센터 연결', b: '위험 지수가 위기 구간입니다. 관제센터 연결을 실행하고, 곁에 사람을 불러 주세요.', action: '개입 화면 열기', view: 'intervene' };
+  if (lv.id === 2) return { t: 'Step 1 · 30초 호흡 가이드', b: '경계 구간입니다. 호흡 가이드로 자율신경을 되돌린 뒤 60초 후 재측정하세요.', action: '호흡 가이드 시작', view: 'intervene' };
+  if (lv.id === 1) return { t: '주의 · 리듬 회복 루틴', b: '가벼운 걷기와 수분 섭취, 카페인 중단을 권합니다. 3시간 뒤 다시 측정하세요.', action: '측정 화면으로', view: 'measure' };
+  return { t: '안정 · 관찰 유지', b: '지금 리듬이 좋습니다. 같은 시간대에 측정을 이어가면 개인 기준선이 더 정확해집니다.', action: '측정 화면으로', view: 'measure' };
+}
+
+/* ---------- 26. 전체 렌더 ---------- */
+function renderAll() {
+  const rows = DB.data.sessions.slice().sort((a, b) => a.ts - b.ts);
+  const f = State.fusion || (State.last && State.last.risk != null ? State.last : null);
+  const risk = f && f.risk != null ? f.risk : null;
+  const lv = risk != null ? levelOf(risk) : null;
+
+  // 리본 헤더
+  setText('#rbIndex', risk == null ? '—' : risk);
+  setText('#rbAuto', risk == null ? '—' : Math.round(clamp(100 - risk, 0, 100)));
+  setText('#rbLevel', lv ? lv.name : '—');
+  setText('#rbSource', f ? `신호원 ${f.source || '측정'} · 신뢰도 ${f.conf ?? '—'}%` : '신호원 없음 · 대기 중');
+
+  // 브리핑
+  const bt = briefText(f);
+  setText('#briefTitle', bt.t); setText('#briefBody', bt.b);
+  setText('#briefStamp', f ? relTime(f.ts || Date.now()) : '대기');
+  setText('#hIndex', risk == null ? '—' : risk);
+  setText('#hAuto', risk == null ? '—' : Math.round(clamp(100 - risk, 0, 100)));
+  const fc = forecastRisk(rows);
+  setText('#hForecast', fc ? Math.round(fc.pred) : '—');
+  const rec = recommendation(f);
+  setText('#recTitle', rec.t); setText('#recBody', rec.b);
+  $('#recAction').textContent = rec.action;
+  $('#recAction').dataset.go = rec.view;
+
+  // 모니터
+  setText('#monRisk', risk == null ? '—' : risk);
+  setText('#monLevel', lv ? lv.name : '—');
+  if (lv) $('#monLevel').style.color = lv.color;
+  setText('#monLevelTxt', lv ? lv.name + ' · ' + (f.conf ?? 0) + '% 신뢰' : '측정 대기');
+  $$('#monLevels i').forEach((el, i) => { el.className = risk != null && i <= (lv ? lv.id : 0) ? 'on-' + (lv ? lv.id : 0) : ''; });
+  Chart.ring($('#ring'), risk, lv ? lv.color : '#455168');
+  setText('#mVHr', f && f.hr ? Math.round(f.hr) : '—');
+  setText('#mVRmssd', f && f.rmssd ? Math.round(f.rmssd) : '—');
+  setText('#mVBr', f && f.br ? num(f.br, 1) : '—');
+  setText('#mVVti', f && f.vti != null ? f.vti : '—');
+  setText('#mVWhen', rows.length ? relTime(rows[rows.length - 1].ts) : '—');
+  const bp = Baseline.progress(rows.length);
+  $('#monBaseBar').style.width = bp + '%';
+  setText('#monBaseTxt', rows.length ? `세션 ${rows.length}개 · ${State.baseline ? '개인 기준선 적용 중' : '인구 기준 초기값 사용 중 (3개부터 개인화)'}` : '세션 0개 · 인구 기준 초기값 사용 중');
+  setText('#baselineBadge', '학습 ' + bp + '%');
+  setText('#railSessions', rows.length);
+  setText('#railBaseline', bp + '%');
+  setText('#railLast', rows.length ? relTime(rows[rows.length - 1].ts) : '—');
+  setText('#devSess', rows.length);
+  setText('#devDiary', DB.data.diary.length);
+  setText('#devSize', (DB.size() / 1024).toFixed(1) + 'KB');
+
+  // 로그
+  const logs = DB.data.events.slice(0, 40).map(e => {
+    const d = new Date(e.ts);
+    return `<div class="log-row lv-${e.lv}"><time>${pad2(d.getHours())}:${pad2(d.getMinutes())}</time><span class="txt"><b>${e.text}</b></span><span class="tag">${e.tag}</span></div>`;
+  }).join('');
+  $('#monLog').innerHTML = logs || '<div class="hint">아직 이벤트가 없습니다.</div>';
+  $('#homeLog').innerHTML = logs || '<div class="hint">아직 이벤트가 없습니다.</div>';
+  $('#diaryLog').innerHTML = DB.data.diary.slice(-8).reverse().map(d =>
+    `<div class="log-row"><time>${pad2(new Date(d.ts).getHours())}:${pad2(new Date(d.ts).getMinutes())}</time><span class="txt">${d.text}${d.tags && d.tags.length ? ' <b>#' + d.tags.join(' #') + '</b>' : ''}</span></div>`
+  ).join('') || '<div class="hint">기록된 감정이 없습니다.</div>';
+
+  // 분석: 기여도
+  if (f && f.sub) {
+    const items = Object.keys(f.sub).filter(k => f.sub[k]).map(k => ({
+      label: SUB[k].label, value: f.sub[k].score, c1: SUB[k].c1, c2: SUB[k].c2
+    })).sort((a, b) => b.value - a.value);
+    Chart.bars($('#contrib'), items, { h: 210 });
+    $('#contribLegend').innerHTML = items.map(it =>
+      `<span><i style="background:${it.c1}"></i>${it.label} ${Math.round(it.value)}</span>`).join('');
+  } else {
+    Chart.bars($('#contrib'), [], { h: 210 });
+    $('#contribLegend').innerHTML = '<span class="hint">측정 후 표시됩니다.</span>';
+  }
+  // 분석: 기준선 표
+  const b = State.baseline;
+  const bRows = [
+    ['심박수', 'bpm', f && f.hr, b && b.hr, POP.hr],
+    ['RMSSD', 'ms', f && f.rmssd, b && b.rmssd, POP.rmssd],
+    ['호흡수', '/분', f && f.br, b && b.br, POP.br],
+    ['음성 긴장', 'VTI', f && f.vti, b && b.vti, POP.vti],
+    ['초조 지수', '', f && f.agit, b && b.agit, POP.agit]
+  ];
+  $('#baselineTbl').innerHTML = `<thead><tr><th>지표</th><th>이번 값</th><th>개인 평균</th><th>σ</th><th>출처</th></tr></thead><tbody>` +
+    bRows.map(([n, u, cur, st, pop]) => `<tr><td style="white-space:nowrap">${n} <span class="hint">${u}</span></td>` +
+      `<td class="num">${cur == null ? '—' : num(cur, n === '음성 긴장' || n === '초조 지수' ? 0 : 1)}</td>` +
+      `<td class="num">${st ? num(st.m, 1) : num(pop, 1)}</td>` +
+      `<td class="num">${st ? num(st.s, 1) : '—'}</td>` +
+      `<td style="white-space:nowrap;color:${st ? 'var(--mint)' : 'var(--ink-faint)'}">${st ? '개인' : '인구'}</td></tr>`).join('') + '</tbody>';
+
+  // 추세
+  const main = rows.filter(s => s.risk != null).slice(-30).map((s, i) => ({ x: i, y: s.risk }));
+  const fcPts = fc && main.length ? [{ x: main.length - 1, y: main[main.length - 1].y }, { x: main.length - 1 + 3, y: fc.pred }] : null;
+  Chart.line($('#trend'), { main, forecast: fcPts, max: main.length ? main.length + 3 : 2 }, {
+    yMin: 0, yMax: 100, thresholds: [{ v: 55, color: 'rgba(255,176,32,.55)' }],
+    empty: '세션이 2개 이상 쌓이면 추세가 그려집니다', h: 230
+  });
+  setText('#trendBadge', fc ? `${fc.slope > 0.6 ? '상승 추세' : fc.slope < -0.6 ? '하강 추세' : '평탄'} · 6시간 후 ${Math.round(fc.pred)}` : '표본 부족');
+  $('#trendBadge').className = 'badge' + (fc && fc.pred >= 55 ? ' warn' : '');
+
+  // 서카디안
+  const sl = DB.data.sleep.slice(-1)[0];
+  Chart.radial24($('#circadian'), sl || null);
+  const chip = $('#sleepChip');
+  if (chip) {
+    chip.className = 'chip' + (sl ? ' on' : '');
+    chip.innerHTML = `<span class="dot"></span>${sl ? `취침 ${num(sl.start, 1)}시 · 기상 ${num(sl.end, 1)}시 · 질 ${sl.quality}/5` : '기록 없음'}`;
+  }
+
+  renderReport(currentRange);
+}
+
+/* ---------- 27. 화면 전환 ---------- */
+function showView(name) {
+  State.view = name;
+  $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
+  $$('[data-view]').forEach(b => b.setAttribute('aria-current', String(b.dataset.view === name)));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (name === 'analyze' || name === 'report') requestAnimationFrame(() => renderAll());
+}
+
+/* ---------- 28. 시뮬레이션 ---------- */
+const Sim = {
+  start() {
+    if (State.sim.on) return;
+    State.sim.on = true; State.sim.t = 0; State.sim.crisisFired = false;
+    $('#btnSimStart').disabled = true; $('#btnSimStop').disabled = false;
+    DB.addEvent(1, '데모 시나리오 시작 — 안정 → 스트레스 축적 → 자율신경 붕괴', 'SIM');
+    Toast('시나리오를 시작합니다', 'ok', '90초 동안 리듬 리본이 실제로 거칠어집니다. 임계값을 넘으면 개입 화면이 열립니다.');
+    State.sim.timer = setInterval(() => {
+      State.sim.t += 1;
+      const p = State.sim.t / 90;
+      const base = 16 + 70 * Math.pow(p, 1.7);
+      const r = clamp(base + (Math.random() - 0.5) * 9, 5, 97);
+      State.sim.risk = r;
+      State.risk = Math.round(r);
+      State.ambientChaos = clamp(r / 100, 0.1, 0.95);
+      const fake = {
+        ts: Date.now(), risk: Math.round(r), conf: 74 + Math.round(Math.random() * 12),
+        level: levelOf(r), hr: 62 + r * 0.55, rmssd: Math.max(8, 52 - r * 0.42),
+        br: 12 + r * 0.09, vti: 18 + r * 0.6, agit: 10 + r * 0.7, source: '시뮬레이션', sub: null
+      };
+      State.fusion = fake;
+      if (State.sim.t % 9 === 0) {
+        fake.sub = { hrv: { score: clamp(60 - r * 0.5 + 40, 0, 100) }, vti: { score: 20 + r * 0.6 }, br: { score: 30 + r * 0.5 }, hr: { score: 25 + r * 0.6 } };
+        DB.addSession(Object.assign({}, fake));
+        State.baseline = Baseline.compute(DB.data.sessions);
+      }
+      setText('#simProg', Math.round(p * 100) + '%');
+      setText('#simRisk', Math.round(r));
+      renderAll();
+      if (r >= 58 && !State.sim.crisisFired) {
+        State.sim.crisisFired = true;
+        DB.addEvent(2, '시뮬레이션 — 임계값 초과, Step 1 자동 개입', 'SIM');
+        Breath.start(true);
+      }
+      if (State.sim.t >= 90) this.stop(true);
+    }, 1000);
+  },
+  stop(done) {
+    State.sim.on = false;
+    if (State.sim.timer) clearInterval(State.sim.timer), State.sim.timer = null;
+    $('#btnSimStart').disabled = false; $('#btnSimStop').disabled = true;
+    if (done) {
+      DB.addEvent(3, '시뮬레이션 종료 — 위기 등급 도달, Step 2 권고', 'SIM');
+      Toast('시나리오 종료', 'danger', '실제 기기에서는 이 시점에 Step 2 에스컬레이션이 자동 제안됩니다. 개입 탭에서 실행해 볼 수 있습니다.');
+      renderAll();
+    }
+  }
+};
+function seedPast() {
+  const now = Date.now();
+  const out = [];
+  for (let d = 6; d >= 0; d--) {
+    for (let k = 0; k < 3; k++) {
+      const ts = now - d * 86400000 + k * 6 * 3600000 - 6 * 3600000;
+      const trend = (6 - d) * 3.1;
+      const r = clamp(22 + trend + (Math.random() - 0.5) * 16 + k * 2.4, 8, 92);
+      out.push({
+        ts, risk: Math.round(r), conf: 70 + Math.round(Math.random() * 20), level: levelOf(r),
+        hr: 62 + r * 0.42 + Math.random() * 4, rmssd: Math.max(9, 55 - r * 0.4),
+        br: 12.5 + r * 0.07, vti: 20 + r * 0.5, agit: 12 + r * 0.6,
+        sdnn: Math.max(12, 60 - r * 0.35), si: 40 + r * 2.1, source: '샘플', sub: null
+      });
+    }
+  }
+  DB.data.sessions = out;
+  State.baseline = Baseline.compute(out);
+  DB.addEvent(1, '샘플 기준선 데이터 7일치를 생성했습니다', 'SEED');
+  renderAll();
+  Toast('샘플 데이터 생성', 'ok', '추세·예측·기준선 학습이 채워집니다.');
+}
+
+/* ---------- 29. 내보내기 ---------- */
+function exportJson() {
+  download('emotion-watch-' + dayKey() + '.json', JSON.stringify({
+    app: 'Emotion Watch prototype', exported: new Date().toISOString(),
+    baseline: State.baseline, sessions: DB.data.sessions, diary: DB.data.diary,
+    sleep: DB.data.sleep, dep: DB.data.settings.dep || []
+  }, null, 2), 'application/json');
+  DB.addEvent(0, 'JSON 내보내기', 'EXPORT');
+}
+function exportCsv() {
+  const head = ['ts', 'iso', 'risk', 'level', 'hr', 'rmssd', 'sdnn', 'br', 'vti', 'agit', 'conf', 'source'];
+  const lines = [head.join(',')].concat(DB.data.sessions.map(s => [
+    s.ts, new Date(s.ts).toISOString(), s.risk ?? '', s.level ? s.level.name : '', s.hr ? s.hr.toFixed(1) : '',
+    s.rmssd ? s.rmssd.toFixed(1) : '', s.sdnn ? s.sdnn.toFixed(1) : '', s.br ? s.br.toFixed(2) : '',
+    s.vti ?? '', s.agit ? s.agit.toFixed(1) : '', s.conf ?? '', s.source || ''
+  ].join(',')));
+  download('emotion-watch-' + dayKey() + '.csv', '\ufeff' + lines.join('\n'), 'text/csv;charset=utf-8');
+  DB.addEvent(0, 'CSV 내보내기', 'EXPORT');
+}
+function shareReport() {
+  const rows = DB.data.sessions.filter(s => s.risk != null);
+  const txt = `[Emotion Watch 요약] ${dayKey()}\n세션 ${rows.length}건 · 평균 위험 ${rows.length ? Math.round(mean(rows.map(s => s.risk))) : '—'}\n최고 위험 ${rows.length ? Math.max(...rows.map(s => s.risk)) : '—'}\n개인 기준선: ${State.baseline ? State.baseline.n + '세션 반영' : '인구 초기값'}\n※ 진단이 아닌 프로토타입 기록입니다.`;
+  if (navigator.share) {
+    navigator.share({ title: 'Emotion Watch 요약', text: txt }).catch(() => {});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(txt).then(() => Toast('요약을 클립보드에 복사했습니다', 'ok'));
+  } else {
+    download('emotion-watch-summary.txt', txt);
+  }
+}
+/* ---------- 30. 음성 일지 ---------- */
+const DIARY_TAGS = ['잠', '불면', '불안', '초조', '무기력', '짜증', '화', '슬픔', '외로움', '피곤', '지침', '스트레스', '괜찮', '안정', '쉼', '아무것도', '집중'];
+function tagText(t) {
+  const hits = DIARY_TAGS.filter(k => t.includes(k));
+  return hits.length ? hits.slice(0, 4) : ['기록'];
+}
+function saveDiary(text, mode) {
+  if (!text || !text.trim()) return;
+  const d = { ts: Date.now(), text: text.trim().slice(0, 300), tags: tagText(text), mode };
+  DB.data.diary.push(d); if (DB.data.diary.length > 400) DB.data.diary.shift();
+  DB.save();
+  DB.addEvent(0, `감정 일지 기록 (${mode === 'voice' ? '음성' : '글'}) — #${d.tags.join(' #')}`, 'DIARY');
+  Toast('감정 일지를 남겼습니다', 'ok', '# ' + d.tags.join(' #'));
+  renderAll();
+}
+let Recog = null;
+function voiceDiary() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    Toast('음성 인식을 쓸 수 없습니다', 'warn', '글로 기록을 사용해 주세요.');
+    textDiaryModal(); return;
+  }
+  try {
+    Recog = new SR();
+    Recog.lang = 'ko-KR'; Recog.interimResults = false; Recog.maxAlternatives = 1;
+    Recog.onresult = e => saveDiary(e.results[0][0].transcript, 'voice');
+    Recog.onerror = ev => Toast('음성 인식 실패', 'warn', ev.error === 'not-allowed' ? '마이크 권한이 필요합니다.' : ev.error);
+    Recog.onend = () => setText('#selfState', $('#selfState').textContent);
+    Recog.start();
+    Toast('듣고 있습니다', 'ok', '5초 정도 지금 기분을 말해 주세요.');
+    speak('지금 기분을 편하게 말씀해 주세요.');
+  } catch (e) { Toast('음성 인식을 시작할 수 없습니다', 'warn', e.message); }
+}
+function textDiaryModal() {
+  openModal('감정 일지', '지금 기분을 한 줄로', `
+    <textarea id="diaryTxt" rows="4" placeholder="예: 오후부터 이유 없이 초조하고 잠이 올 것 같지 않다"
+      style="width:100%;background:rgba(4,6,12,.6);border:1px solid var(--line);border-radius:10px;padding:11px;font-size:14px"></textarea>
+    <div class="btn-row" style="margin-top:12px"><button class="btn primary" id="diarySave">저장</button></div>
+  `);
+  $('#diarySave').onclick = () => { saveDiary($('#diaryTxt').value, 'text'); closeModal(); };
+}
+
+/* ---------- 31. 의료진 화면 미리보기 ---------- */
+function clinicianView() {
+  const rows = DB.data.sessions.filter(s => s.risk != null).slice(-12);
+  const f = State.fusion || State.last;
+  openModal('관제센터', '의료진 화면 미리보기 (시뮬레이션)', `
+    <div class="notice" style="margin-bottom:14px"><b>실제 연동이 아닙니다 ·</b> 배포 시 병원 HIS/EMR과 SaMD 인증이 선행되어야 합니다. 아래는 에스컬레이션 시 관제센터가 받는 화면의 구성 예시입니다.</div>
+    <div class="grid g3">
+      <div class="tile"><small>대상 위험</small><b>${f && f.risk != null ? f.risk : '—'}<i>/100</i></b></div>
+      <div class="tile"><small>분류</small><b style="font-size:16px">${f && f.level ? f.level.name : '—'}</b></div>
+      <div class="tile"><small>문진</small><b style="font-size:16px">${Triage.answers.length ? Triage.answers.length + '개 응답' : '미완료'}</b></div>
+    </div>
+    <div class="tbl-scroll" style="margin-top:14px"><table class="tbl"><thead><tr><th>시각</th><th>위험</th><th>심박</th><th>RMSSD</th><th>호흡</th></tr></thead><tbody>` +
+    (rows.length ? rows.slice().reverse().map(s => `<tr><td class="num">${new Date(s.ts).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</td><td class="num">${s.risk ?? '—'}</td><td class="num">${s.hr ? Math.round(s.hr) : '—'}</td><td class="num">${s.rmssd ? Math.round(s.rmssd) : '—'}</td><td class="num">${s.br ? num(s.br, 1) : '—'}</td></tr>`).join('') : '<tr><td colspan="5" class="hint">세션이 없습니다</td></tr>') +
+    `</tbody></table></div>
+    <div class="legal" style="margin-top:14px"><b>수신 항목 (암호화 해제 후)</b>위험 지수 추세 · 활력 · 개인 기준선 대비 편차 · 자가 문진 응답 · 위치(동의 시). 정신건강 민감정보는 열람 권한이 분리되어야 합니다.</div>
+    <div class="btn-row" style="margin-top:14px"><button class="btn" id="clClose">닫기</button></div>
+  `);
+  $('#clClose').onclick = closeModal;
+}
+
+/* ---------- 32. 이벤트 배선 ---------- */
+let currentRange = 7;
+function wire() {
+  $$('[data-view]').forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
+  $$('[data-go]').forEach(b => b.addEventListener('click', () => showView(b.dataset.go)));
+  $('#recAction').addEventListener('click', e => showView(e.currentTarget.dataset.go || 'measure'));
+
+  $('#btnConsent').onclick = openConsent;
+  $('#btnQuickBreath').onclick = () => Breath.start(false);
+  $('#btnDemo').onclick = () => { showView('device'); setTimeout(() => Sim.start(), 400); };
+
+  // 카메라
+  $$('#camMode button').forEach(b => b.addEventListener('click', () => {
+    if (State.measuring.cam) return;
+    $$('#camMode button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    PPG.mode = b.dataset.mode; setRoi(PPG.mode);
+    setText('#camHint', PPG.mode === 'face'
+      ? '얼굴 모드는 밝은 곳에서 정면을 바라보고 30초 동안 움직이지 마세요. 화면의 점선 안에 얼굴이 들어와야 합니다.'
+      : '후면 카메라 렌즈에 검지 끝을 가볍게 대세요. 플래시가 켜지면 손끝이 붉게 비쳐야 정상입니다. 누르지 말고 얹어 두세요.');
+  }));
+  $('#btnCamStart').onclick = () => PPG.start();
+  $('#btnCamStop').onclick = () => PPG.stop(true);
+  // 마이크
+  $('#btnMicStart').onclick = () => { Mic.DUR = 20; Mic.start(); };
+  $('#btnMicStop').onclick = () => Mic.stop(true);
+  $('#btnSpeakNow').onclick = async () => { speak('편안하게 숫자를 하나씩 세어 주세요.'); if (!State.measuring.mic) { Mic.DUR = 8; await Mic.start(); } };
+  // 모션
+  $('#btnMotionStart').onclick = () => Motion.start();
+  $('#btnMotionStop').onclick = () => Motion.stop(true);
+  // BLE
+  $('#btnBle').onclick = () => Ble.connect();
+  $('#btnBleOff').onclick = () => Ble.disconnect();
+  // 융합
+  $('#btnFuse').onclick = () => {
+    const f = Fusion.run();
+    if (f.risk == null) { Toast('신호가 부족합니다', 'warn', '카메라·마이크·모션·BLE·자가 체크 중 최소 2개가 필요합니다.'); return; }
+    saveSession(f);
+    setText('#rFuseRisk', f.risk); setText('#rFuseConf', f.conf + '%'); setText('#rFuseLevel', f.level.name);
+    $('#modFuse').classList.add('done');
+    Toast('융합 분석 완료', 'ok', `위험 ${f.risk} · ${f.level.name} · 신뢰도 ${f.conf}%`);
+    showView('analyze');
+    if (f.level.id >= 2) {
+      setTimeout(() => Toast(f.level.id >= 3 ? '위기 등급입니다' : '경계 등급입니다', 'danger',
+        f.level.id >= 3 ? '관제센터 연결을 실행하세요. 개입 탭에서 바로 가능합니다.' : '30초 호흡 가이드를 권합니다.'), 1200);
+    }
+  };
+  // 개입
+  $('#btnBreath').onclick = () => Breath.start(false);
+  $('#btnEscalate').onclick = () => Escalate.run('사용자 요청');
+  $('#btnClinician').onclick = clinicianView;
+  $('#crisisOk').onclick = () => { Breath.stop(); Toast('기록했습니다', 'ok', '60초 뒤 다시 측정해 변화를 확인하세요.'); };
+  $('#crisisEsc').onclick = () => { Breath.stop(); Escalate.run('위기 오버레이에서 요청'); };
+  $('#crisisClose').onclick = () => Breath.stop();
+  // 문진 챗봇
+  Triage.start();
+  $('#chatQuick').addEventListener('click', e => { const b = e.target.closest('button'); if (b) Triage.answer(b.dataset.a); });
+  $('#chatSend').onclick = () => { const v = $('#chatInput').value.trim(); if (v) { Triage.answer(v); $('#chatInput').value = ''; } };
+  $('#chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('#chatSend').click(); });
+  $('#btnShareGuardian').onclick = shareReport;
+  // 리포트
+  $$('#reportRange button').forEach(b => b.addEventListener('click', () => {
+    $$('#reportRange button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    currentRange = +b.dataset.days; renderAll();
+  }));
+  $('#btnExportJson').onclick = exportJson;
+  $('#btnExportCsv').onclick = exportCsv;
+  $('#btnPrint').onclick = () => window.print();
+  $('#btnShareReport').onclick = shareReport;
+  // 일지 / 수면 / 체크
+  $('#btnVoiceDiary').onclick = voiceDiary;
+  $('#btnTextDiary').onclick = textDiaryModal;
+  $('#btnSleep').onclick = openSleep;
+  $('#sleepChip').onclick = openSleep;
+  $('#btnSimStart').onclick = () => Sim.start();
+  $('#btnSimStop').onclick = () => Sim.stop(true);
+  $('#btnSimData').onclick = seedPast;
+  $('#btnSeed').onclick = seedPast;
+  $('#btnWipe').onclick = () => {
+    if (confirm('저장된 세션·일지·이벤트를 모두 삭제할까요? 되돌릴 수 없습니다.')) {
+      DB.wipe(); State.baseline = null; State.last = null; State.fusion = null; State.risk = 0;
+      renderAll(); Toast('모든 기록을 삭제했습니다', 'ok');
+    }
+  };
+  // 기기
+  $('#btnProbe').onclick = () => Caps.probe();
+  $('#btnPermAll').onclick = async () => {
+    const log = [];
+    try { const s = await navigator.mediaDevices.getUserMedia({ video: true }); s.getTracks().forEach(t => t.stop()); log.push('카메라 허용'); } catch (e) { log.push('카메라 거부'); }
+    try { const s = await navigator.mediaDevices.getUserMedia({ audio: true }); s.getTracks().forEach(t => t.stop()); log.push('마이크 허용'); } catch (e) { log.push('마이크 거부'); }
+    const m = await Motion.request(); log.push(m ? '모션 허용' : '모션 불가');
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') { try { await Notification.requestPermission(); } catch (e) {} }
+    if (navigator.vibrate) navigator.vibrate(80);
+    await Caps.probe();
+    Toast('권한 요청 완료', 'ok', log.join(' · '));
+  };
+  $('#btnWake').onclick = async () => {
+    if (State.wakeLock) { await releaseWake(); Toast('화면 유지 해제', 'ok'); }
+    else { await requestWake(); Toast(State.wakeLock ? '측정 동안 화면을 켜 둡니다' : '화면 유지 미지원', State.wakeLock ? 'ok' : 'warn'); }
+  };
+  $('#btnNotify').onclick = async () => {
+    if (typeof Notification === 'undefined') { Toast('알림을 지원하지 않습니다', 'warn'); return; }
+    const p = await Notification.requestPermission();
+    notify('Emotion Watch', '알림이 연결되었습니다. 위험 임계값 초과 시 알려드립니다.');
+    Toast('알림 권한: ' + p, p === 'granted' ? 'ok' : 'warn', p === 'granted' ? '모바일에서는 화면이 꺼져 있으면 알림이 지연될 수 있습니다.' : '');
+    Caps.probe();
+  };
+  $('#btnVibe').onclick = () => {
+    if (navigator.vibrate) { navigator.vibrate([120, 60, 120, 60, 240]); Toast('진동 테스트', 'ok', '위기 알림은 3중 진동 패턴을 사용합니다.'); }
+    else Toast('진동을 지원하지 않습니다', 'warn', '데스크톱 브라우저에서는 동작하지 않습니다.');
+  };
+  $('#btnGeo').onclick = () => {
+    if (!navigator.geolocation) { Toast('위치를 지원하지 않습니다', 'warn'); return; }
+    navigator.geolocation.getCurrentPosition(p => {
+      State.geo = { lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy };
+      Toast('위치를 기록했습니다', 'ok', `±${Math.round(p.coords.accuracy)}m · 동의한 경우에만 전송됩니다.`);
+    }, e => Toast('위치를 가져오지 못했습니다', 'warn', e.message));
+  };
+  // 모달
+  $('#modalX').onclick = closeModal;
+  $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModal(); if (Breath.running) Breath.stop(); }
+  });
+  window.addEventListener('beforeunload', () => { PPG.stop(true); Mic.stop(true); Motion.stop(true); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && State.measuring.cam) { PPG.stop(true); Toast('화면이 꺼져 측정을 중단했습니다', 'warn'); }
+  });
+}
+
+/* ---------- 33. 초기화 ---------- */
+function init() {
+  DB.load();
+  State.baseline = Baseline.compute(DB.data.sessions);
+  State.sleep = DB.data.sleep.slice(-1)[0] || null;
+  const last = DB.data.sessions.slice(-1)[0];
+  if (last) { State.last = last; if (last.risk != null) { State.risk = last.risk; State.ambientChaos = clamp(last.risk / 100, 0.1, 0.9); } }
+  renderSelf(); renderDep(); setRoi('face');
+  Ribbon.init();
+  wire();
+  Caps.probe();
+  setInterval(() => setText('#rbClock', clockT()), 1000);
+  setText('#rbClock', clockT());
+  if (window.speechSynthesis) { try { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices(); } catch (e) {} }
+  if (!DB.data.consents.local) {
+    $('#firstRun').classList.remove('hidden');
+    $('#firstRunBtn').onclick = () => { openConsent(); $('#firstRun').classList.add('hidden'); };
+  }
+  renderAll();
+  showView('home');
+  DB.addEvent(0, 'Emotion Watch 프로토타입 세션 시작', 'BOOT');
+  console.log('%cEmotion Watch','color:#38e1ff;font-weight:700','프로토타입 · 진단용이 아닙니다.');
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4bc70e2c01a94c73b74392e4234840661791215815920" integrity="sha512-L0ha0OXavK/8okipN9F8BtP84dg9DUhPERbBXzwI6dgTA55d2+yweo3pn5CSFYs45/r8md2+xvUPtTdvTNRfjA==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
